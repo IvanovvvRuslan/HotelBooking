@@ -1,6 +1,8 @@
-﻿namespace PhoneBook;
+﻿using PhoneBook.Exceptions;
 
-interface IService
+namespace PhoneBook;
+
+interface IContactService
 {
     List<Contact> GetContacts();
     List<Contact> AddContact(string name, string phoneNumber);
@@ -10,29 +12,24 @@ interface IService
     List<Contact> DeleteContact(int id);
 }
 
-public class Service : IService
+public class ContactService : IContactService
 {
     private readonly IFileManager _fileManager;
     private List<Contact> _contacts;
 
-    public Service(FileManager fileManager)
+    public ContactService()
+    {
+        _contacts = new List<Contact>();
+    }
+    
+    public ContactService(FileManager fileManager)
     {
         _fileManager = fileManager;
-
-        try
-        {
-            _contacts = _fileManager.GetContacts();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            _contacts = new List<Contact>();
-        }
-       
+        _contacts = _fileManager.GetContacts();
     }
 
     //Generate id by the last existing id in the list
-    private int IdGenerator()
+    private int GenerateId()
     {
         if (_contacts.Count == 0)
             return 1;
@@ -52,7 +49,7 @@ public class Service : IService
 
         _contacts.Add(new Contact
         {
-            Id = IdGenerator(),
+            Id = GenerateId(),
             Name = name,
             Number = phoneNumber,
         });

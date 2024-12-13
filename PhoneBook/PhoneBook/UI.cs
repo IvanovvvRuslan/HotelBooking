@@ -4,12 +4,12 @@ namespace PhoneBook;
 
 public class UI
 {
-    private readonly IService _service;
+    private readonly IContactService _contactService;
     private readonly IFileManager _fileManager;
 
-    public UI(Service service, FileManager fileManager)
+    public UI(ContactService contactService, FileManager fileManager)
     {
-        _service = service;
+        _contactService = contactService;
         _fileManager = fileManager;
     }
     
@@ -71,13 +71,12 @@ public class UI
     //Get list of all contacts
     public void GetAllContacts()
     {
-        var contacts = _service.GetContacts();
+        var contacts = _contactService.GetContacts();
 
         if (contacts == null || contacts.Count == 0)
         {
             Console.Clear();
             Console.WriteLine("There are no contacts in the file\n");
-            GetUserChoice();
             return;
         }
         
@@ -99,7 +98,7 @@ public class UI
         
         try
         {
-            var contacts = _service.AddContact(name, number);
+            var contacts = _contactService.AddContact(name, number);
             _fileManager.AddContacts(contacts);
 
             Console.WriteLine("\nContact added\n");
@@ -115,16 +114,11 @@ public class UI
     {
         Console.WriteLine("Enter contact name: ");
         var name = GetValidName();
+        
+        var contact = TryGetContactByName(name);
 
-        try
-        {
-            var contact = _service.GetContactByName(name);
+        if (contact != null)
             Console.WriteLine($"\nId: {contact.Id}, Name: {contact.Name}, Number: {contact.Number}\n");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
     }
 
     //Edit contact
@@ -139,18 +133,12 @@ public class UI
         Console.WriteLine("\nPlease enter the new contact number:");
         var newNumber = GetValidNumber();
 
-        try
+        var contact = TryGetContactByName(name);
+
+        if (contact != null)
         {
-            var contact = _service.GetContactByName(name);
-            
-            var updatedContacts = _service.UpdateContact(contact.Id, newName, newNumber);
+            var updatedContacts = _contactService.UpdateContact(contact.Id, newName, newNumber);
             _fileManager.AddContacts(updatedContacts);
-                
-            Console.WriteLine("\nContact updated\n");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
         }
     }
 
@@ -160,19 +148,16 @@ public class UI
         Console.WriteLine("Enter contact name to delete: ");
         var name = GetValidName();
         
-        try
+        var contact = TryGetContactByName(name);
+
+        if (contact != null)
         {
-            var contact = _service.GetContactByName(name);
             Console.WriteLine($"Contact found: \nName: {contact.Name}, Number: {contact.Number}\n");
             
-            var updatedContacts = _service.DeleteContact(contact.Id);
+            var updatedContacts = _contactService.DeleteContact(contact.Id);
             _fileManager.AddContacts(updatedContacts);
         
             Console.WriteLine("Contact deleted\n");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
         }
     }
 
@@ -219,5 +204,20 @@ public class UI
         } while (!System.Text.RegularExpressions.Regex.IsMatch(number, @"^\+?\d+$"));
         
         return number;
+    }
+
+    //Search for a contact by name using try-catch
+    private Contact TryGetContactByName(string name)
+    {
+        try
+        {
+            var contact = _contactService.GetContactByName(name);
+            return contact;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
     }
 }
