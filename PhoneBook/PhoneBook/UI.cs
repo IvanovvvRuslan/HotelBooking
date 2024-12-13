@@ -1,4 +1,6 @@
-﻿namespace PhoneBook;
+﻿using PhoneBook.Exceptions;
+
+namespace PhoneBook;
 
 public class UI
 {
@@ -19,7 +21,7 @@ public class UI
 
         while (!validChoice)
         {
-            DesplayMenu();
+            DisplayMenu();
                   
             int.TryParse(Console.ReadLine(), out userChoice);
 
@@ -93,13 +95,21 @@ public class UI
 
         Console.WriteLine("Enter contact number: ");
         var number = GetValidNumber();
-        
+
         try
         {
             var contacts = _contactService.AddContact(name, number);
             _fileManager.AddContacts(contacts);
 
             Console.WriteLine("\nContact added\n");
+        }
+        catch (ContactNotFoundException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        catch (ContactNumberExistsException ex)
+        {
+            Console.WriteLine(ex.Message);
         }
         catch (Exception ex)
         {
@@ -160,7 +170,7 @@ public class UI
     }
 
     //Menu items
-    private void DesplayMenu()
+    private void DisplayMenu()
     {
         Console.WriteLine("Please choose an action:");
         Console.WriteLine("1. Add Contact");
@@ -212,9 +222,13 @@ public class UI
             var contact = _contactService.GetContactByName(name);
             return contact;
         }
-        catch (Exception ex)
+        catch (ContactNameNotFoundException ex)
         {
             Console.WriteLine(ex.Message);
+            return null;
+        }
+        catch (Exception ex)
+        {
             return null;
         }
     }

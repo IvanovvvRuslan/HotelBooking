@@ -19,7 +19,7 @@ public class FileManager : IFileManager
     public List<Contact> GetContacts()
     {
         if (!FileExists())
-            throw new PhoneBookFileNotFoundException();
+            return new List<Contact>();
         
         var phoneBookJson = File.ReadAllText(_filePath);
         return JsonSerializer.Deserialize<List<Contact>>(phoneBookJson);

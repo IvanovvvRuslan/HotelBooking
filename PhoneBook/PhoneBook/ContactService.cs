@@ -1,4 +1,6 @@
-﻿namespace PhoneBook;
+﻿using PhoneBook.Exceptions;
+
+namespace PhoneBook;
 
 interface IContactService
 {
@@ -15,12 +17,7 @@ public class ContactService : IContactService
     private readonly IFileManager _fileManager;
     private List<Contact> _contacts;
 
-    public ContactService()
-    {
-        _contacts = new List<Contact>();
-    }
-    
-    public ContactService(FileManager fileManager)
+   public ContactService(FileManager fileManager)
     {
         _fileManager = fileManager;
         _contacts = _fileManager.GetContacts();
@@ -40,10 +37,10 @@ public class ContactService : IContactService
     public List<Contact> AddContact(string name, string phoneNumber)
     {
         if (_contacts.Any(c => c.Name == name))
-            throw new Exception("Contact with this name already exists");
+            throw new ContactNameExistsException();
 
         if (_contacts.Any(c => c.Number == phoneNumber))
-            throw new Exception("Contact with this phone number already exists");
+            throw new ContactNumberExistsException();
 
         _contacts.Add(new Contact
         {
@@ -59,7 +56,7 @@ public class ContactService : IContactService
     {
         var contact = _contacts.FirstOrDefault(c => c.Name == name);
         if (contact == null)
-            throw new Exception("Contact with this name does not exist");
+            throw new ContactNameNotFoundException();
         
         return contact;
     }
@@ -74,13 +71,13 @@ public class ContactService : IContactService
         var contact = _contacts.FirstOrDefault(c => c.Id == id);
 
         if (contact == null)
-            throw new Exception("Contact not found");
+            throw new ContactNotFoundException();;
 
         if (_contacts.Any(c => c.Name == newName && c.Id != id))
-            throw new Exception("Contact with this name already exists");
+            throw new ContactNameExistsException();
         
         if (_contacts.Any(c => c.Number == newPhoneNumber && c.Id != id))
-            throw new Exception("Contact with this phone number already exists");
+            throw new ContactNumberExistsException();
         {
 
             contact.Name = newName;
@@ -95,7 +92,7 @@ public class ContactService : IContactService
         var contact = _contacts.FirstOrDefault(c => c.Id == id);
 
         if (contact == null)
-            throw new Exception("Contact not found");
+            throw new ContactNotFoundException();
 
         _contacts.Remove(contact);
 
