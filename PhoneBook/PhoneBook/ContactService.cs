@@ -1,6 +1,4 @@
-﻿using PhoneBook.Exceptions;
-
-namespace PhoneBook;
+﻿namespace PhoneBook;
 
 interface IContactService
 {
