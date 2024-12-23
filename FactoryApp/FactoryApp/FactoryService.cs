@@ -27,17 +27,21 @@ public class FactoryService
 
     public async Task TakeParts(int amount)
     {
-        while (_factory.PartsInStock > 0)
+        try
         {
-            try
+            if (_factory.PartsInStock > 0)
             {
                 _factory.PartsInStock -= amount;
-                Console.WriteLine($"{amount} detail taken. Total amount: {_factory.PartsInStock}");
+                 Console.WriteLine($"{amount} detail taken. Total amount: {_factory.PartsInStock}");
             }
-            finally
+            else
             {
-                await _semaphore.WaitAsync();
+                Console.WriteLine("No more available part to take");
             }
+        }
+        finally
+        {
+            await _semaphore.WaitAsync();
         }
     }
 }
