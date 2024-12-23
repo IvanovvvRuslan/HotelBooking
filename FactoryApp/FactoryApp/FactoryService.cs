@@ -27,6 +27,7 @@ public class FactoryService
 
     public async Task TakeParts(int amount)
     {
+        await _semaphore.WaitAsync();
         try
         {
             if (_factory.PartsInStock > 0)
