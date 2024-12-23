@@ -42,7 +42,7 @@ public class FactoryService
         }
         finally
         {
-            await _semaphore.WaitAsync();
+            _semaphore.Release();
         }
     }
 }
