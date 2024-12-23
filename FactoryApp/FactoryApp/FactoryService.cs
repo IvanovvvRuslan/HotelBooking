@@ -11,9 +11,6 @@ public class FactoryService
         _semaphore = new SemaphoreSlim(1, 1);
     }
     
-    Task[] tasks = new Task[100];
-    
-    
     public async Task AddParts(int amount)
     {
         await _semaphore.WaitAsync();
