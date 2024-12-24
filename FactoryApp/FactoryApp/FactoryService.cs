@@ -11,7 +11,7 @@ public class FactoryService
         _semaphore = new SemaphoreSlim(1, 1);
     }
     
-    public async Task AddParts(int amount)
+    public async Task AddPartsAsync(int amount)
     {
         await _semaphore.WaitAsync();
         try
@@ -25,7 +25,7 @@ public class FactoryService
         }
     }
 
-    public async Task TakeParts(int amount)
+    public async Task TakePartsAsync(int amount)
     {
         await _semaphore.WaitAsync();
         try
