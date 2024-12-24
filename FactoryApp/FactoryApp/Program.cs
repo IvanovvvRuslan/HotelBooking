@@ -1,13 +1,12 @@
 ﻿using FactoryApp;
 
 FactoryService factoryService = new FactoryService();
-Task[] tasks = new Task[100];
+List<Task> tasks = new List<Task>();
 
 for (int i = 0; i < 100; i++)
 {
-    tasks[i] = Task.Run(() => factoryService.AddParts(1));
-    Thread.Sleep(50);
-    tasks[i] = Task.Run(() => factoryService.TakeParts(1));
+    tasks.Add(Task.Run(() => factoryService.AddParts(1)));
+    tasks.Add(Task.Run(() => factoryService.TakeParts(1)));
 }
 
 await Task.WhenAll(tasks);
