@@ -1,6 +1,6 @@
 ﻿namespace MyWebApp.DTO;
 
-public class CreateUserDto
+public class SignUpDto
 {
     public string UserName { get; set; }
     
