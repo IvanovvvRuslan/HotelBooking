@@ -21,6 +21,9 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             .HasOne(u => u.Account)
             .WithOne(a => a.User)
             .HasForeignKey<Account>(a => a.Id);
+
+        modelBuilder.Entity<Account>()
+            .ToTable("Accounts");
     }
 }
 

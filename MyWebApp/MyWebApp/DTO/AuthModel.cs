@@ -1,6 +1,6 @@
 ﻿namespace MyWebApp.DTO;
 
-public class AuthDto
+public class AuthModel
 {
     public string AccessToken { get; set; }
 }

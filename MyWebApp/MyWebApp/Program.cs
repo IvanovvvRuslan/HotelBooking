@@ -85,15 +85,15 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapPost("register", ([FromServices] IUserService userService, [FromBody] SignUpDto userDto) =>
+app.MapPost("signup", ([FromServices] IUserService userService, [FromBody] SignUpDto userDto) =>
     {
         return userService.RegisterUserAsync(userDto);
     }
 );
 
-app.MapPost("login", ([FromServices] IUserService userService, [FromBody] SignInDto loginDto) =>
+app.MapPost("signin", ([FromServices] IUserService userService, [FromBody] SignInDto signInDto) =>
     {
-        return userService.LoginUserAsync(loginDto);
+        return userService.LoginUserAsync(signInDto);
     }
 );
 

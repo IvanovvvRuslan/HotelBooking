@@ -9,8 +9,8 @@ namespace MyWebApp.Services;
 
 public interface IUserService
 {
-    Task<AuthDto> RegisterUserAsync(SignUpDto signUpDto);
-    Task<AuthDto> LoginUserAsync(SignInDto signInDto);
+    Task<AuthModel> RegisterUserAsync(SignUpDto signUpDto);
+    Task<AuthModel> LoginUserAsync(SignInDto signInDto);
 }
 
 public class UserService : IUserService
@@ -26,7 +26,7 @@ public class UserService : IUserService
         _context = context;
     }
     
-    public async Task<AuthDto> RegisterUserAsync(SignUpDto signUpDto)
+    public async Task<AuthModel> RegisterUserAsync(SignUpDto signUpDto)
     {
         var newUser = new User
         {
@@ -38,6 +38,8 @@ public class UserService : IUserService
             UserName = signUpDto.UserName,
             Email = signUpDto.Email
         };
+
+        newUser.Account.UserId = newUser.Id;
         
         var result = await _userManager.CreateAsync(newUser, signUpDto.Password);
 
@@ -49,13 +51,13 @@ public class UserService : IUserService
             throw new SignUpFailedException(errors);
         }
 
-        return new AuthDto
+        return new AuthModel
         {
             AccessToken = _jwtService.GenerateJwt(newUser.Id, newUser.UserName)
         };
     }
 
-    public async Task<AuthDto> LoginUserAsync(SignInDto signInDto)
+    public async Task<AuthModel> LoginUserAsync(SignInDto signInDto)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == signInDto.UserName);
         
@@ -67,7 +69,7 @@ public class UserService : IUserService
         if (!isPasswordValid)
             throw new SignInFailedException("Password is not valid");
         
-        return new AuthDto
+        return new AuthModel
         {
             AccessToken = _jwtService.GenerateJwt(user.Id, user!.UserName)
         };
