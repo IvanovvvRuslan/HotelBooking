@@ -20,7 +20,7 @@ public class Reservation
 
     public string? Description { get; set; }
 
-    public Client Client { get; set; }
+    public Client Client { get; set; } = null!;
 
-    public ICollection<ReservationRoomType> RoomTypes { get; set; }
+    public ICollection<ReservationRoomType> RoomTypes { get; set; } = new List<ReservationRoomType>();
 }

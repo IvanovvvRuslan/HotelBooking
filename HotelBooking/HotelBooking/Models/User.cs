@@ -9,4 +9,7 @@ public class User : IdentityUser<int>
     public string LastName { get; set; }
     
     public string? Description { get; set; }
+
+    public Admin Admin { get; set; }
+    public Client Client { get; set; }
 }

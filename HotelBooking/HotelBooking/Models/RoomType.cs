@@ -12,5 +12,5 @@ public class RoomType
     
     public string? Description { get; set; }
 
-    public ICollection<ReservationRoomType> Reservations { get; set; }
+    public ICollection<ReservationRoomType> Reservations { get; set; } = new List<ReservationRoomType>();
 }

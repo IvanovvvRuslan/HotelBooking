@@ -6,7 +6,11 @@ public class ReservationRoomType
 
     public int RoomTypeId { get; set; }
     
-    public Reservation Reservation { get; set; }
+    public Reservation Reservation { get; set; } = null!;
     
-    public RoomType RoomType { get; set; }
+    public RoomType RoomType { get; set; } = null!;
+
+    public byte ReservedRoomCount { get; set; }
+
+    public DateTime CreatedAt { get; set; }
 }

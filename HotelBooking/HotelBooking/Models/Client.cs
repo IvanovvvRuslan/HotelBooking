@@ -14,7 +14,7 @@ public class Client
     
     public bool IsVip { get; set; }
     
-    public User User { get; set; }
+    public User User { get; set; } = null!;
 
-    public ICollection<Reservation> Reservations { get; set; }
+    public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 }
