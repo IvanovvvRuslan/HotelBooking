@@ -6,8 +6,6 @@ public class Reservation
     
     public int ClientId { get; set; }
     
-    public int RoomTypeId { get; set; }
-    
     public DateTime CheckInDate { get; set; }
     
     public DateTime CheckOutDate { get; set; }

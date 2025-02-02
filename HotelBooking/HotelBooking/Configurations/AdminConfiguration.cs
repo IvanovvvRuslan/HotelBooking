@@ -11,6 +11,6 @@ public class AdminConfiguration : IEntityTypeConfiguration<Admin>
         builder.HasOne(a => a.User)
             .WithOne(u => u.Admin)
             .HasForeignKey<Admin>(a => a.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
