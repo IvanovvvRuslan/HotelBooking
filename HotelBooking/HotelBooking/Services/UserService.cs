@@ -28,6 +28,10 @@ public class UserService : IUserService
     
     public async Task<AuthDto> CreateUserAsync(SignUpDto signUpDto)
     {
+        var existingUser = await _userManager.FindByEmailAsync(signUpDto.Email);
+        if (existingUser != null)
+            throw new SignUpFailedException("User with this email already exists");
+        
         var newUser = new User
         {
             Email = signUpDto.Email,
