@@ -12,5 +12,5 @@ public class ReservationRoomType
 
     public byte ReservedRoomCount { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
