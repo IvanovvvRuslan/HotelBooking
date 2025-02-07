@@ -10,9 +10,10 @@ public interface IRoomTypeRepository
 {
     Task<IEnumerable<RoomType>> GetAllAsync();
     Task<RoomType> GetByIdAsync(int id);
+    Task<RoomType> GetByIdTrackedAsync(int id);
     Task CreateAsync(RoomType roomType);
-    Task UpdateAsync(RoomType roomType);
     Task DeleteAsync(RoomType roomType);
+    Task SaveChangesAsync();
 }
 
 public class RoomTypeRepository : IRoomTypeRepository
@@ -43,21 +44,26 @@ public class RoomTypeRepository : IRoomTypeRepository
         return roomType;
     }
 
+    public async Task<RoomType> GetByIdTrackedAsync(int id)
+    {
+        var roomType = await _context.RoomTypes
+           .FirstOrDefaultAsync(r => r.Id == id);
+
+        return roomType;
+    }
+
     public async Task CreateAsync(RoomType roomType)
     {
         await _context.RoomTypes.AddAsync(roomType);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(RoomType roomType)
-    {
-        _context.RoomTypes.Update(roomType);
-        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(RoomType roomType)
     {
         _context.RoomTypes.Remove(roomType);
+    }
+
+    public async Task SaveChangesAsync()
+    {
         await _context.SaveChangesAsync();
     }
 }

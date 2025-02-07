@@ -58,11 +58,12 @@ public class RoomTypeService : IRoomTypeService
         };
         
         await _roomTypeRepository.CreateAsync(newRoomType);
+        await _roomTypeRepository.SaveChangesAsync();
     }
 
     public async Task PatchRoomTypeAsync(int id, JsonPatchDocument<RoomTypeDto> patchDoc)
     {
-        var roomType = await _roomTypeRepository.GetByIdAsync(id);
+        var roomType = await _roomTypeRepository.GetByIdTrackedAsync(id);
 
         if (roomType == null)
             throw new NotFoundException("Room type not found");
@@ -75,7 +76,7 @@ public class RoomTypeService : IRoomTypeService
         roomType.MaxOccupancy = roomTypeDto.MaxOccupancy;
         roomType.Description = roomTypeDto.Description;
         
-        await _roomTypeRepository.UpdateAsync(roomType);
+        await _roomTypeRepository.SaveChangesAsync();
     }
 
     public async Task DeleteRoomTypeAsync(int id)
@@ -86,5 +87,6 @@ public class RoomTypeService : IRoomTypeService
             throw new NotFoundException("Room type not found");
         
         await _roomTypeRepository.DeleteAsync(roomType);
+        await _roomTypeRepository.SaveChangesAsync();
     }
 }
