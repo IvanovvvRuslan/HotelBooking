@@ -42,12 +42,9 @@ public class RoomTypeController : ControllerBase
     
     //Patch
     [HttpPatch("{id}")]
-    public async Task<IActionResult> UpdateRoomType([FromRoute]int id, [FromBody]JsonPatchDocument<RoomTypeDto> patchDoc)
+    public async Task<IActionResult> UpdateRoomType([FromRoute]int id, [FromBody]RoomTypeDto roomTypeDto)
     {
-        if (patchDoc == null)
-            return BadRequest();
-        
-        await _roomTypeService.PatchRoomTypeAsync(id, patchDoc);
+        await _roomTypeService.PatchRoomTypeAsync(id, roomTypeDto);
         
         return Ok("Room Type Updated");
     }

@@ -74,7 +74,7 @@ builder.Services.Configure<JwtOptions>(
 // Add services to the container.
 
 builder.Services.AddControllers().AddNewtonsoftJson();
-builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddEndpointsApiExplorer();
