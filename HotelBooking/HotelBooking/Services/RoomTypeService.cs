@@ -68,14 +68,12 @@ public class RoomTypeService : IRoomTypeService
         if (roomType == null)
             throw new NotFoundException("Room type not found");
         
-        if (UpdateIfChanged(roomType, roomTypeDto))
-        {
-            await _roomTypeRepository.SaveChangesAsync();    
-        }
-        else
-        {
-            throw new NoChangesException("No changes to update");
-        }
+        roomType.Name = roomTypeDto.Name;
+        roomType.Price = roomTypeDto.Price;
+        roomType.MaxOccupancy = roomTypeDto.MaxOccupancy;
+        roomType.Description = roomTypeDto.Description;
+        
+        await _roomTypeRepository.SaveChangesAsync();
     }
 
     public async Task DeleteRoomTypeAsync(int id)
@@ -87,36 +85,5 @@ public class RoomTypeService : IRoomTypeService
         
         await _roomTypeRepository.DeleteAsync(roomType);
         await _roomTypeRepository.SaveChangesAsync();
-    }
-
-    private bool UpdateIfChanged(RoomType roomTypeOld, RoomTypeDto roomTypeNew)
-    {
-        bool isUpdated = false;
-
-        if (roomTypeOld.Name != roomTypeNew.Name)
-        {
-            roomTypeOld.Name = roomTypeNew.Name;
-            isUpdated = true;
-        }
-
-        if (roomTypeOld.Price != roomTypeNew.Price)
-        {
-            roomTypeOld.Price = roomTypeNew.Price;
-            isUpdated = true;
-        }
-
-        if (roomTypeOld.MaxOccupancy != roomTypeNew.MaxOccupancy)
-        {
-            roomTypeOld.MaxOccupancy = roomTypeNew.MaxOccupancy;
-            isUpdated = true;
-        }
-
-        if (roomTypeOld.Description != roomTypeNew.Description)
-        {
-            roomTypeOld.Description = roomTypeNew.Description;
-            isUpdated = true;
-        }
-        
-        return isUpdated;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using HotelBooking.DTO.ResponseDto;
 using HotelBooking.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ public class RoomTypeController : ControllerBase
     }
     
     // GET
+    [AllowAnonymous]
     [HttpGet]
     public async Task <ActionResult<IEnumerable<RoomTypeDto>>> GetAllRoomTypes()
     {
@@ -24,6 +26,7 @@ public class RoomTypeController : ControllerBase
         return Ok(roomTypes);
     }
     
+    [AllowAnonymous]
     //GetById
     [HttpGet("{id}")]
     public async Task<ActionResult<RoomTypeDto>> GetRoomType([FromRoute]int id)
@@ -33,6 +36,7 @@ public class RoomTypeController : ControllerBase
     }
     
     //Post
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateRoomType([FromBody]RoomTypeDto roomTypeDto)
     {
@@ -41,6 +45,7 @@ public class RoomTypeController : ControllerBase
     }
     
     //Patch
+    [Authorize(Roles = "Admin")]
     [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateRoomType([FromRoute]int id, [FromBody]RoomTypeDto roomTypeDto)
     {
@@ -50,6 +55,7 @@ public class RoomTypeController : ControllerBase
     }
     
     //Delete
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteRoomType([FromRoute] int id)
     {

@@ -11,7 +11,6 @@ public class GlobalExceptionHandler : IExceptionHandler
         var (statusCode, response) = exception switch
         {
             NotFoundException notFoundException => HandleNotFoundException(notFoundException),
-            NoChangesException noChangesException => HandleNoChangesException (noChangesException),
             _ => HandleUnknownException(exception)
         };
         
@@ -27,16 +26,6 @@ public class GlobalExceptionHandler : IExceptionHandler
         return (StatusCodes.Status404NotFound, new
         {
             Status = "Error",
-            Message = exception.Message,
-            Details = (object?)null
-        });
-    }
-
-    private static (int statusCode, object response) HandleNoChangesException(NoChangesException exception)
-    {
-        return (StatusCodes.Status204NoContent, new
-        {
-            Status = "Info",
             Message = exception.Message,
             Details = (object?)null
         });

@@ -9,7 +9,7 @@ namespace HotelBooking.Services;
 
 public interface IUserService
 {
-    Task<AuthDto> CreateUserAsync(SignUpDto signUpDto);
+    Task<AuthDto> CreateUserAsync(SignUpDto signUpDto, bool isAdmin);
     Task<AuthDto> LoginUserAsync(SignInDto signInDto);
 }
 
@@ -26,7 +26,7 @@ public class UserService : IUserService
         _context = context;
     }
     
-    public async Task<AuthDto> CreateUserAsync(SignUpDto signUpDto)
+    public async Task<AuthDto> CreateUserAsync(SignUpDto signUpDto, bool isAdmin)
     {
         var existingUser = await _userManager.FindByEmailAsync(signUpDto.Email);
         if (existingUser != null)
@@ -41,6 +41,9 @@ public class UserService : IUserService
         };
         
         var result = await _userManager.CreateAsync(newUser, signUpDto.Password);
+        
+        var role = isAdmin ? "Admin" : "Client";
+        await _userManager.AddToRoleAsync(newUser, role);
 
         if (!result.Succeeded)
         {
