@@ -19,7 +19,6 @@ public interface IRoomTypeRepository
 public class RoomTypeRepository : IRoomTypeRepository
 {
     private readonly ApplicationDbContext _context;
-    private IRoomTypeRepository _roomTypeRepositoryImplementation;
 
     public RoomTypeRepository(ApplicationDbContext context)
     {

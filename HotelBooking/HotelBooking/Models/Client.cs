@@ -7,7 +7,7 @@ public class Client
     public int UserId { get; set; }
 
     public DateTime RegistrationDate { get; set; }
-    
+
     public string? Gender { get; set; }
     
     public string? Country { get; set; }

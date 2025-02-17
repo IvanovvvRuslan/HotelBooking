@@ -35,7 +35,7 @@ public class AuthController : Controller
     
     //POST
     [Authorize(Roles = "Admin")]
-    [HttpPost("create-admin")]
+    [HttpPost("admin")]
     public async Task<ActionResult<AuthDto>> CreateAdmin([FromBody] SignUpDto signUpDto)
     {
         bool isAdmin = true;
