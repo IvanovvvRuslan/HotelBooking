@@ -1,6 +1,6 @@
+using System.Security.Claims;
 using System.Text;
 using HotelBooking.Data;
-using HotelBooking.DTO;
 using HotelBooking.Exceptions;
 using HotelBooking.Models;
 using HotelBooking.Options;
@@ -8,7 +8,7 @@ using HotelBooking.Repositories;
 using HotelBooking.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -18,12 +18,38 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ClientOrAdmin", policy => policy.RequireAssertion(context =>
+    {
+        var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null)
+            return false;
+        
+        var userId = int.Parse(userIdClaim);
+        var roles = context.User.Claims.Where(c => c.Type == ClaimTypes.Role)
+            .Select(c => c.Value).ToList();
+
+        if (roles.Contains("Admin"))
+            return true;
+        
+        var httpContext = context.Resource as HttpContext;
+        if (httpContext == null)
+            return false;
+            
+        var routeData = httpContext.GetRouteData();
+        
+        var requestedUserId = routeData.Values["id"]?.ToString();
+        
+        return requestedUserId != null && int.TryParse(requestedUserId, out var requestedId) && requestedId == userId;
+    }));
+});
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRoomTypeService, RoomTypeService>();
 builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
+builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();

@@ -26,9 +26,9 @@ public class UserController : Controller
     }
     
     //Get
-    [HttpGet("{userId}")]
+    [HttpGet("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<UserDto>> GetUserAsync(int id)
+    public async Task<ActionResult<UserDto>> GetUserByIdAsync(int id)
     {
         var user = await _userService.GetUserByIdAsync(id);
         
@@ -36,21 +36,21 @@ public class UserController : Controller
     }
     
     //Patch
-    [HttpPatch("{userId}")]
+    [HttpPatch("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateUserAsync([FromRoute] int userId, [FromBody]UserDto userDto)
+    public async Task<IActionResult> UpdateUserAsync([FromRoute] int id, [FromBody]UserDto userDto)
     {
-        await _userService.PatchUserAsync(userId, userDto);
+        await _userService.PatchUserAsync(id, userDto);
         
         return Ok("User updated");
     }
     
     //Delete
-    [HttpDelete("{userId}")]
+    [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteUserAsync([FromRoute] int userId)
+    public async Task<IActionResult> DeleteUserAsync([FromRoute] int id)
     {
-        await _userService.DeleteUserAsync(userId);
+        await _userService.DeleteUserAsync(id);
         
         return Ok("User deleted");
     }

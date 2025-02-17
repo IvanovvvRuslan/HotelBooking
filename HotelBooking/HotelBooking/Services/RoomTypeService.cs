@@ -63,15 +63,15 @@ public class RoomTypeService : IRoomTypeService
 
     public async Task PatchRoomTypeAsync(int id, RoomTypeDto roomTypeDto)
     {
-        var roomType = await _roomTypeRepository.GetByIdTrackedAsync(id);
+        var oldRoomType = await _roomTypeRepository.GetByIdTrackedAsync(id);
 
-        if (roomType == null)
+        if (oldRoomType == null)
             throw new NotFoundException("Room type not found");
         
-        roomType.Name = roomTypeDto.Name;
-        roomType.Price = roomTypeDto.Price;
-        roomType.MaxOccupancy = roomTypeDto.MaxOccupancy;
-        roomType.Description = roomTypeDto.Description;
+        oldRoomType.Name = roomTypeDto.Name;
+        oldRoomType.Price = roomTypeDto.Price;
+        oldRoomType.MaxOccupancy = roomTypeDto.MaxOccupancy;
+        oldRoomType.Description = roomTypeDto.Description;
         
         await _roomTypeRepository.SaveChangesAsync();
     }
