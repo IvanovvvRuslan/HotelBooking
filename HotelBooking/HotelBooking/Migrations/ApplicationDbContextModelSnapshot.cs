@@ -38,7 +38,7 @@ namespace HotelBooking.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Admins", (string)null);
+                    b.ToTable("Admins");
                 });
 
             modelBuilder.Entity("HotelBooking.Models.Client", b =>
@@ -69,7 +69,7 @@ namespace HotelBooking.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Clients", (string)null);
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("HotelBooking.Models.Reservation", b =>
@@ -106,7 +106,7 @@ namespace HotelBooking.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("Reservations", (string)null);
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("HotelBooking.Models.ReservationRoomType", b =>
@@ -127,7 +127,7 @@ namespace HotelBooking.Migrations
 
                     b.HasIndex("RoomTypeId");
 
-                    b.ToTable("ReservationRoomTypes", (string)null);
+                    b.ToTable("ReservationRoomTypes");
                 });
 
             modelBuilder.Entity("HotelBooking.Models.RoomType", b =>
@@ -153,7 +153,7 @@ namespace HotelBooking.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoomTypes", (string)null);
+                    b.ToTable("RoomTypes");
                 });
 
             modelBuilder.Entity("HotelBooking.Models.User", b =>
@@ -373,7 +373,7 @@ namespace HotelBooking.Migrations
                     b.HasOne("HotelBooking.Models.User", "User")
                         .WithOne("Admin")
                         .HasForeignKey("HotelBooking.Models.Admin", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
