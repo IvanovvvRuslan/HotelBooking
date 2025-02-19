@@ -1,6 +1,6 @@
 ﻿namespace HotelBooking.DTO.ResponseDto;
 
-public class ClientDto
+public class ClientForAdminDto
 {
     public int UserId { get; set; }
 

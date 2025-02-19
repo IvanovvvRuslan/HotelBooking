@@ -18,32 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ClientOrAdmin", policy => policy.RequireAssertion(context =>
-    {
-        var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userIdClaim == null)
-            return false;
-        
-        var userId = int.Parse(userIdClaim);
-        var roles = context.User.Claims.Where(c => c.Type == ClaimTypes.Role)
-            .Select(c => c.Value).ToList();
-
-        if (roles.Contains("Admin"))
-            return true;
-        
-        var httpContext = context.Resource as HttpContext;
-        if (httpContext == null)
-            return false;
-            
-        var routeData = httpContext.GetRouteData();
-        
-        var requestedUserId = routeData.Values["id"]?.ToString();
-        
-        return requestedUserId != null && int.TryParse(requestedUserId, out var requestedId) && requestedId == userId;
-    }));
-});
+builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtService, JwtService>();

@@ -18,17 +18,18 @@ public class RoomTypeController : ControllerBase
     }
     
     // GET
-    [AllowAnonymous]
     [HttpGet]
+    [AllowAnonymous]
     public async Task <ActionResult<IEnumerable<RoomTypeDto>>> GetAllRoomTypesAsync()
     {
         var roomTypes = await _roomTypeService.GetAllRoomTypesAsync();
         return Ok(roomTypes);
     }
     
-    [AllowAnonymous]
+    
     //GetById
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult<RoomTypeDto>> GetRoomTypeByIdAsync([FromRoute]int id)
     {
         var roomType = await _roomTypeService.GetRoomTypeByIdAsync(id);
@@ -36,8 +37,8 @@ public class RoomTypeController : ControllerBase
     }
     
     //Post
-    [Authorize(Roles = "Admin")]
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateRoomTypeAsync([FromBody]RoomTypeDto roomTypeDto)
     {
         await _roomTypeService.CreateRoomTypeAsync(roomTypeDto);
@@ -45,8 +46,8 @@ public class RoomTypeController : ControllerBase
     }
     
     //Patch
-    [Authorize(Roles = "Admin")]
     [HttpPatch("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateRoomTypeAsync([FromRoute]int id, [FromBody]RoomTypeDto roomTypeDto)
     {
         await _roomTypeService.PatchRoomTypeAsync(id, roomTypeDto);
@@ -55,8 +56,8 @@ public class RoomTypeController : ControllerBase
     }
     
     //Delete
-    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteRoomTypeAsync([FromRoute] int id)
     {
         await _roomTypeService.DeleteRoomTypeAsync(id);

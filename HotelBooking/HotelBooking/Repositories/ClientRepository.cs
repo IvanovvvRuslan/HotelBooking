@@ -9,6 +9,8 @@ public interface IClientRepository
     Task<IEnumerable<Client>> GetallAsync();
     Task<Client> GetByIdAsync(int id);
     Task<Client> GetByIdTrackedAsync(int id);
+    Task<Client> GetByUserIdAsync(int id);
+    Task<Client> GetByUserIdTrackedAsync(int id);
     Task CreateAsync(Client client);
     Task SaveChangesAsync();
     Task DeleteAsync(Client client);
@@ -40,11 +42,28 @@ public class ClientRepository : IClientRepository
         
         return client;
     }
-    
+
     public async Task<Client> GetByIdTrackedAsync(int id)
     {
         var client = await _context.Clients
             .FirstOrDefaultAsync(c => c.Id == id);
+        
+        return client;
+    }
+    
+    public async Task<Client> GetByUserIdAsync(int id)
+    {
+        var client = await _context.Clients
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.UserId == id);
+        
+        return client;
+    }
+
+    public async Task<Client> GetByUserIdTrackedAsync(int id)
+    {
+        var client = await _context.Clients
+            .FirstOrDefaultAsync(c => c.UserId == id);
         
         return client;
     }

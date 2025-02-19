@@ -1,5 +1,4 @@
 ﻿using HotelBooking.DTO.ResponseDto;
-using HotelBooking.Models;
 using HotelBooking.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +19,7 @@ public class ClientController : Controller
     // GET
     [HttpGet]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<IEnumerable<ClientDto>>> GetAllClientsAsync()
+    public async Task<ActionResult<IEnumerable<ClientForAdminDto>>> GetAllClientsAsync()
     {
         var clients = await _clientService.GetAllClientsAsync();
         
@@ -29,10 +28,20 @@ public class ClientController : Controller
     
     //GetById
     [HttpGet("{id}")]
-    [Authorize(Policy = "ClientOrAdmin")]
-    public async Task<ActionResult<ClientDto>> GetById([FromRoute]int id)
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ClientForAdminDto>> GetById([FromRoute]int id)
     {
-        var client = await _clientService.GetClientById(id);
+        var client = await _clientService.GetClientByIdAsync(id);
+        
+        return Ok(client);
+    }
+    
+    //GetCurrent
+    [HttpGet("current")]
+    [Authorize(Roles = "Client")]
+    public async Task<ActionResult<ClientForAdminDto>> GetCurrentClientAsync()
+    {
+        var client = await _clientService.GetCurrentClientAsync(User);
         
         return Ok(client);
     }
@@ -40,30 +49,50 @@ public class ClientController : Controller
     //Post
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateAsync(ClientDto clientDto)
+    public async Task<IActionResult> CreateAsync(ClientForAdminDto clientForAdminDto)
     {
-        await _clientService.CreateClientAsync(clientDto);
+        await _clientService.CreateClientAsync(clientForAdminDto);
         
         return Ok("Client created");
     }
     
     //Patch
     [HttpPatch("{id}")]
-    [Authorize(Policy = "ClientOrAdmin")]
-    public async Task<IActionResult> UpdateAsync([FromRoute]int id, [FromBody]ClientDto clientDto)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateAsync([FromRoute]int id, [FromBody]ClientForAdminDto clientForAdminDto)
     {
-        await _clientService.UpdateClientAsync(id, clientDto);
+        await _clientService.UpdateClientAsync(id, clientForAdminDto);
         
         return Ok("Client updated");
     }
     
+    //PatchCurrent
+    [HttpPatch("current")]
+    [Authorize(Roles = "Client")]
+    public async Task<IActionResult> UpdateCurrentClientAsync([FromBody] ClientForUserDto clientForUserDto)
+    {
+        await _clientService.UpdateCurrentClientAsync(User, clientForUserDto);
+        
+        return Ok("Account updated");
+    }
+    
     //Delete
     [HttpDelete("{id}")]
-    [Authorize(Policy = "ClientOrAdmin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         await _clientService.DeleteClientAsync(id);
         
         return Ok("Client deleted");
+    }
+    
+    //DeleteCurrent
+    [HttpDelete("current")]
+    [Authorize(Roles = "Client")]
+    public async Task<IActionResult> DeleteCurrentClientAsync()
+    {
+        await _clientService.DeleteCurrentClientAsync(User);
+        
+        return Ok("Account deleted");
     }
 }
