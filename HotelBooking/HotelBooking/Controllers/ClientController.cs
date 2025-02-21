@@ -29,7 +29,7 @@ public class ClientController : Controller
     //GetById
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ClientForAdminDto>> GetById([FromRoute]int id)
+    public async Task<ActionResult<ClientForAdminDto>> GetClientByIdAsync([FromRoute]int id)
     {
         var client = await _clientService.GetClientByIdAsync(id);
         
@@ -49,7 +49,7 @@ public class ClientController : Controller
     //Post
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateAsync(ClientForAdminDto clientForAdminDto)
+    public async Task<IActionResult> CreateClientAsync(ClientForAdminDto clientForAdminDto)
     {
         await _clientService.CreateClientAsync(clientForAdminDto);
         
@@ -59,7 +59,7 @@ public class ClientController : Controller
     //Patch
     [HttpPatch("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateAsync([FromRoute]int id, [FromBody]ClientForAdminDto clientForAdminDto)
+    public async Task<IActionResult> UpdateClientAsync([FromRoute]int id, [FromBody]ClientForAdminDto clientForAdminDto)
     {
         await _clientService.UpdateClientAsync(id, clientForAdminDto);
         
@@ -79,7 +79,7 @@ public class ClientController : Controller
     //Delete
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+    public async Task<IActionResult> DeleteClientAsync([FromRoute] int id)
     {
         await _clientService.DeleteClientAsync(id);
         

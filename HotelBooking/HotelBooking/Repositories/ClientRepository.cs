@@ -9,11 +9,11 @@ public interface IClientRepository
     Task<IEnumerable<Client>> GetallAsync();
     Task<Client> GetByIdAsync(int id);
     Task<Client> GetByIdTrackedAsync(int id);
-    Task<Client> GetByUserIdAsync(int id);
-    Task<Client> GetByUserIdTrackedAsync(int id);
+    Task<Client> GetByUserIdAsync(int userId);
+    Task<Client> GetByUserIdTrackedAsync(int userId);
     Task CreateAsync(Client client);
-    Task SaveChangesAsync();
     Task DeleteAsync(Client client);
+    Task SaveChangesAsync();
 }
 
 public class ClientRepository : IClientRepository
@@ -51,19 +51,19 @@ public class ClientRepository : IClientRepository
         return client;
     }
     
-    public async Task<Client> GetByUserIdAsync(int id)
+    public async Task<Client> GetByUserIdAsync(int userId)
     {
         var client = await _context.Clients
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.UserId == id);
+            .FirstOrDefaultAsync(c => c.UserId == userId);
         
         return client;
     }
 
-    public async Task<Client> GetByUserIdTrackedAsync(int id)
+    public async Task<Client> GetByUserIdTrackedAsync(int userId)
     {
         var client = await _context.Clients
-            .FirstOrDefaultAsync(c => c.UserId == id);
+            .FirstOrDefaultAsync(c => c.UserId == userId);
         
         return client;
     }
@@ -73,9 +73,10 @@ public class ClientRepository : IClientRepository
         await _context.Clients.AddAsync(client);
     }
 
-    public async Task DeleteAsync(Client client)
+    public Task DeleteAsync(Client client)
     {
         _context.Clients.Remove(client);
+        return Task.CompletedTask;
     }
 
     public async Task SaveChangesAsync()

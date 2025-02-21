@@ -23,6 +23,7 @@ public class RoomTypeController : ControllerBase
     public async Task <ActionResult<IEnumerable<RoomTypeDto>>> GetAllRoomTypesAsync()
     {
         var roomTypes = await _roomTypeService.GetAllRoomTypesAsync();
+        
         return Ok(roomTypes);
     }
     

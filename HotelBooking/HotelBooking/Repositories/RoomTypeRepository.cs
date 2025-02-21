@@ -56,9 +56,10 @@ public class RoomTypeRepository : IRoomTypeRepository
         await _context.RoomTypes.AddAsync(roomType);
     }
 
-    public async Task DeleteAsync(RoomType roomType)
+    public Task DeleteAsync(RoomType roomType)
     {
         _context.RoomTypes.Remove(roomType);
+        return Task.CompletedTask;
     }
 
     public async Task SaveChangesAsync()
