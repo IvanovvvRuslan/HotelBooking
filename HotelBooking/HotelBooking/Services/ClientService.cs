@@ -25,11 +25,13 @@ public class ClientService : IClientService
 {
     private readonly IClientRepository _clientRepository;
     private readonly UserManager<User> _userManager;
+    private readonly UserContext _userContext;
 
-    public ClientService(IClientRepository clientRepository, UserManager<User> userManager)
+    public ClientService(IClientRepository clientRepository, UserManager<User> userManager, UserContext userContext)
     {
         _clientRepository = clientRepository;
         _userManager = userManager;
+        _userContext = userContext;
     }
 
 
@@ -56,7 +58,7 @@ public class ClientService : IClientService
 
     public async Task<ClientForUserDto> GetCurrentClientAsync(ClaimsPrincipal user)
     {
-        var userId = GetUserIdFromClaim(user);
+        var userId = int.Parse(_userContext.UserId);
         
         var client = await _clientRepository.GetByUserIdAsync(userId);
         
@@ -121,7 +123,7 @@ public class ClientService : IClientService
 
     public async Task UpdateCurrentClientAsync(ClaimsPrincipal user, ClientForUserDto clientForUserDto)
     {
-        var userId = GetUserIdFromClaim(user);
+        var userId = int.Parse(_userContext.UserId);
 
         var oldClient = await _clientRepository.GetByUserIdTrackedAsync(userId);
         
@@ -161,7 +163,7 @@ public class ClientService : IClientService
 
     public async Task DeleteCurrentClientAsync(ClaimsPrincipal user)
     {
-        var userId = GetUserIdFromClaim(user);
+        var userId = int.Parse(_userContext.UserId);
         
         var client = await _clientRepository.GetByUserIdAsync(userId);
         
@@ -180,16 +182,6 @@ public class ClientService : IClientService
             await _clientRepository.DeleteAsync(client);
             await _clientRepository.SaveChangesAsync();
         }
-    }
-
-    private int GetUserIdFromClaim(ClaimsPrincipal user)
-    {
-        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
-        if (userIdClaim == null)
-            throw new UnauthorizedAccessException("You are not authorized to access this client");
-    
-        return int.Parse(userIdClaim);
     }
 }
 

@@ -28,14 +28,17 @@ public class ReservationService : IReservationService
     private readonly IClientRepository _clientRepository;
     private readonly IReservationRoomTypeRepository _reservationRoomTypeRepository;
     private readonly IReservationroomTypeService _reservationRoomTypeService;
+    private readonly UserContext _userContext;
     
     public ReservationService(IReservationRepository reservationRepository, IClientRepository clientRepository, 
-        IReservationRoomTypeRepository reservationRoomTypeRepository, IReservationroomTypeService reservationRoomTypeService)
+        IReservationRoomTypeRepository reservationRoomTypeRepository, IReservationroomTypeService reservationRoomTypeService,
+        UserContext userContext)
     {
         _reservationRepository = reservationRepository;
         _clientRepository = clientRepository;
         _reservationRoomTypeRepository = reservationRoomTypeRepository;
         _reservationRoomTypeService = reservationRoomTypeService;
+        _userContext = userContext;
     }
 
     public async Task<IEnumerable<ReservationForAdminDto>> GetAllReservationsAsync()
@@ -61,7 +64,7 @@ public class ReservationService : IReservationService
 
     public async Task<IEnumerable<ReservationForClientDto>> GetAllCurrentReservationsAsync(ClaimsPrincipal user)
     {
-        var userId = GetUserIdFromClaim(user);
+        var userId = int.Parse(_userContext.UserId);
         
         var client = await _clientRepository.GetByUserIdAsync(userId);
 
@@ -77,7 +80,7 @@ public class ReservationService : IReservationService
 
     public async Task<ReservationForClientDto> GetCurrentReservationAsync(int id, ClaimsPrincipal user)
     {
-        var userId = GetUserIdFromClaim(user);
+        var userId = int.Parse(_userContext.UserId);
         
         var client = await _clientRepository.GetByUserIdAsync(userId);
 
@@ -115,7 +118,7 @@ public class ReservationService : IReservationService
 
     public async Task CreateCurrentReservationAsync(ClaimsPrincipal user, ReservationForClientCreateDto reservation)
     {
-        var userId = GetUserIdFromClaim(user);
+        var userId = int.Parse(_userContext.UserId);
         
         var client = await _clientRepository.GetByUserIdAsync(userId);
         
@@ -160,7 +163,7 @@ public class ReservationService : IReservationService
 
     public async Task UpdateCurrentReservationAsync(int id, ReservationForClientUpdateDto reservationForClientUpdateDto, ClaimsPrincipal user)
     {
-        var userId = GetUserIdFromClaim(user);
+        var userId = int.Parse(_userContext.UserId);
         
         var client = await _clientRepository.GetByUserIdAsync(userId);
 
@@ -193,7 +196,7 @@ public class ReservationService : IReservationService
 
     public async Task DeleteCurrentReservationAsync(int id, ClaimsPrincipal user)
     {
-        var userId = GetUserIdFromClaim(user);
+        var userId = int.Parse(_userContext.UserId);
         
         var client = await _clientRepository.GetByUserIdAsync(userId);
 
@@ -207,15 +210,5 @@ public class ReservationService : IReservationService
         
         await _reservationRepository.DeleteAsync(reservation);
         await _reservationRepository.SaveChangesAsync();
-    }
-
-    private int GetUserIdFromClaim(ClaimsPrincipal user)
-    {
-        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (userIdClaim == null)
-            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
-        
-        return int.Parse(userIdClaim);
     }
 }

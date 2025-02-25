@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelBooking.Controllers;
 
 [ApiController]
-[Route("reservations")]
 public class ReservationController : Controller
 {
     private readonly IReservationService _reservationService;
@@ -19,7 +18,7 @@ public class ReservationController : Controller
     }
     
     // GET
-    [HttpGet]
+    [HttpGet("admin/reservations")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<ReservationForAdminDto>>> GetAllReservationsAsync()
     {
@@ -29,7 +28,7 @@ public class ReservationController : Controller
     }
     
     //GetById
-    [HttpGet("{id}")]
+    [HttpGet("admin/reservations/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ReservationForAdminDto>> GetReservationByIdAsync([FromRoute]int id)
     {
@@ -39,7 +38,7 @@ public class ReservationController : Controller
     }
     
     //GetAllCurrent
-    [HttpGet("current")]
+    [HttpGet("users/current/reservations")]
     [Authorize(Roles = "Client")]
     public async Task<ActionResult<IEnumerable<ReservationForClientDto>>> GetAllCurrentReservationsAsync()
     {
@@ -49,7 +48,7 @@ public class ReservationController : Controller
     }
     
     //GetCurrent
-    [HttpGet("current/{id}")]
+    [HttpGet("users/current/reservations/{id}")]
     [Authorize(Roles = "Client")]
     public async Task<ActionResult<ReservationForClientDto>> GetCurrentReservationByIdAsync([FromRoute]int id)
     {
@@ -59,7 +58,7 @@ public class ReservationController : Controller
     }
 
     //Post
-    [HttpPost]
+    [HttpPost("admin/reservations")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateReservationAsync([FromBody] ReservationForAdminDto reservation)
     {
@@ -69,7 +68,7 @@ public class ReservationController : Controller
     }
     
     //PostCurrent
-    [HttpPost("current")]
+    [HttpPost("users/current/reservations")]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> CreateCurrentReservationAsync([FromBody]ReservationForClientCreateDto reservation)
     {
@@ -79,7 +78,7 @@ public class ReservationController : Controller
     }
     
     //Patch
-    [HttpPatch("{id}")]
+    [HttpPatch("admin/reservations/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateReservationAsync([FromRoute]int id, [FromBody]ReservationForAdminDto reservation)
     {
@@ -89,7 +88,7 @@ public class ReservationController : Controller
     }
     
     //PatchCurrent
-    [HttpPatch("current/{id}")]
+    [HttpPatch("users/current/reservations/{id}")]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> UpdateCurrentReservationAsync([FromRoute] int id, [FromBody]ReservationForClientUpdateDto reservation)
     {
@@ -99,7 +98,7 @@ public class ReservationController : Controller
     }
     
     //Delete
-    [HttpDelete("{id}")]
+    [HttpDelete("admin/reservations/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteReservationAsync([FromRoute] int id)
     {
@@ -109,7 +108,7 @@ public class ReservationController : Controller
     }
     
     //DeleteCurrent
-    [HttpDelete("current/{id}")]
+    [HttpDelete("users/current/reservations/{id}")]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> DeleteCurrentReservationAsync([FromRoute] int id)
     {

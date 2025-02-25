@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelBooking.Controllers;
 
 [ApiController]
-[Route("clients")]
 public class ClientController : Controller
 {
     private readonly IClientService _clientService;
@@ -17,7 +16,7 @@ public class ClientController : Controller
     }
     
     // GET
-    [HttpGet]
+    [HttpGet("admin/clients")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<ClientForAdminDto>>> GetAllClientsAsync()
     {
@@ -27,7 +26,7 @@ public class ClientController : Controller
     }
     
     //GetById
-    [HttpGet("{id}")]
+    [HttpGet("admin/clients/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ClientForAdminDto>> GetClientByIdAsync([FromRoute]int id)
     {
@@ -37,7 +36,7 @@ public class ClientController : Controller
     }
     
     //GetCurrent
-    [HttpGet("current")]
+    [HttpGet("users/current/client")]
     [Authorize(Roles = "Client")]
     public async Task<ActionResult<ClientForAdminDto>> GetCurrentClientAsync()
     {
@@ -47,7 +46,7 @@ public class ClientController : Controller
     }
     
     //Post
-    [HttpPost]
+    [HttpPost("admin/clients")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateClientAsync(ClientForAdminDto clientForAdminDto)
     {
@@ -57,7 +56,7 @@ public class ClientController : Controller
     }
     
     //Patch
-    [HttpPatch("{id}")]
+    [HttpPatch("admin/clients/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateClientAsync([FromRoute]int id, [FromBody]ClientForAdminDto clientForAdminDto)
     {
@@ -67,7 +66,7 @@ public class ClientController : Controller
     }
     
     //PatchCurrent
-    [HttpPatch("current")]
+    [HttpPatch("users/current/client")]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> UpdateCurrentClientAsync([FromBody] ClientForUserDto clientForUserDto)
     {
@@ -77,7 +76,7 @@ public class ClientController : Controller
     }
     
     //Delete
-    [HttpDelete("{id}")]
+    [HttpDelete("admin/clients/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteClientAsync([FromRoute] int id)
     {
@@ -87,7 +86,7 @@ public class ClientController : Controller
     }
     
     //DeleteCurrent
-    [HttpDelete("current")]
+    [HttpDelete("users/current/client")]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> DeleteCurrentClientAsync()
     {
