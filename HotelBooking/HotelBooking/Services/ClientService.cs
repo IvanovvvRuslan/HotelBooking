@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Security.Claims;
+using HotelBooking.DTO;
 using HotelBooking.DTO.ResponseDto;
 using HotelBooking.Exceptions;
 using HotelBooking.Models;
@@ -14,7 +15,7 @@ public interface IClientService
     Task<IEnumerable<ClientForAdminDto>> GetAllClientsAsync();
     Task<ClientForAdminDto> GetClientByIdAsync(int id);
     Task<ClientForUserDto> GetCurrentClientAsync(ClaimsPrincipal user);
-    Task CreateClientAsync(ClientForAdminDto clientForAdminDto);
+    Task CreateClientAsync(SignUpDto signUpDto);
     Task UpdateClientAsync(int id, ClientForAdminDto clientForAdminDto);
     Task UpdateCurrentClientAsync(ClaimsPrincipal user, ClientForUserDto clientForUserDto);
     Task DeleteClientAsync(int id);
@@ -26,18 +27,21 @@ public class ClientService : IClientService
     private readonly IClientRepository _clientRepository;
     private readonly UserManager<User> _userManager;
     private readonly UserContext _userContext;
-
-    public ClientService(IClientRepository clientRepository, UserManager<User> userManager, UserContext userContext)
+    private readonly IUserService _userService;
+    
+    public ClientService(IClientRepository clientRepository, UserManager<User> userManager, UserContext userContext,
+        IUserService userService)
     {
         _clientRepository = clientRepository;
         _userManager = userManager;
         _userContext = userContext;
+        _userService = userService;
     }
 
 
     public async Task<IEnumerable<ClientForAdminDto>> GetAllClientsAsync()
     {
-        var clients = await _clientRepository.GetallAsync();
+        var clients = await _clientRepository.GetAllAsync();
         
         var clientsDto = clients.Adapt<IEnumerable<ClientForAdminDto>>();
         
@@ -77,28 +81,11 @@ public class ClientService : IClientService
         return clientDto;
     }
 
-    public async Task CreateClientAsync(ClientForAdminDto clientForAdminDto)
+    public async Task CreateClientAsync(SignUpDto signUpDto)
     {
-        var newClient = new Client
-        {
-            UserId = clientForAdminDto.UserId,
-            RegistrationDate = DateTime.UtcNow,
-            Gender = clientForAdminDto.Gender,
-            Country = clientForAdminDto.Country,
-            IsVip = clientForAdminDto.isVip
-        };
+        bool isAdmin = false;
         
-        //Save PhoneNumber to User
-        var user = await _userManager.FindByIdAsync(clientForAdminDto.UserId.ToString());
-        
-        if (user == null)
-            throw new NotFoundException("User not found");
-        
-        user.PhoneNumber = clientForAdminDto.PhoneNumber;
-        
-        await _clientRepository.CreateAsync(newClient);
-        await _clientRepository.SaveChangesAsync();
-        await _userManager.UpdateAsync(user);
+        await _userService.CreateUserAsync(signUpDto, isAdmin);
     }
 
     public async Task UpdateClientAsync(int id, ClientForAdminDto clientForAdminDto)
@@ -156,7 +143,7 @@ public class ClientService : IClientService
         
         if (client != null)
         {
-            await _clientRepository.DeleteAsync(client);
+            await _clientRepository.Delete(client);
             await _clientRepository.SaveChangesAsync();    
         }
     }
@@ -179,7 +166,7 @@ public class ClientService : IClientService
 
         if (client != null)
         {
-            await _clientRepository.DeleteAsync(client);
+            await _clientRepository.Delete(client);
             await _clientRepository.SaveChangesAsync();
         }
     }

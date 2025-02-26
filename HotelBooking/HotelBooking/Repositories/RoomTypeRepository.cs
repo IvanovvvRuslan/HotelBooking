@@ -6,64 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Repositories;
 
-public interface IRoomTypeRepository
+public interface IRoomTypeRepository : IGenericRepository<RoomType>;
+
+public class RoomTypeRepository : GenericRepository<RoomType>, IRoomTypeRepository
 {
-    Task<IEnumerable<RoomType>> GetAllAsync();
-    Task<RoomType> GetByIdAsync(int id);
-    Task<RoomType> GetByIdTrackedAsync(int id);
-    Task CreateAsync(RoomType roomType);
-    Task DeleteAsync(RoomType roomType);
-    Task SaveChangesAsync();
-}
-
-public class RoomTypeRepository : IRoomTypeRepository
-{
-    private readonly ApplicationDbContext _context;
-
-    public RoomTypeRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
-    
-    public async Task<IEnumerable<RoomType>> GetAllAsync()
-    {
-        var roomTypes = await _context.RoomTypes
-            .AsNoTracking()
-            .ToListAsync();
-        
-        return roomTypes;
-    }
-
-    public async Task<RoomType> GetByIdAsync(int id)
-    {
-        var roomType = await _context.RoomTypes
-            .AsNoTracking()
-            .FirstOrDefaultAsync(r => r.Id == id);
-
-        return roomType;
-    }
-
-    public async Task<RoomType> GetByIdTrackedAsync(int id)
-    {
-        var roomType = await _context.RoomTypes
-           .FirstOrDefaultAsync(r => r.Id == id);
-
-        return roomType;
-    }
-
-    public async Task CreateAsync(RoomType roomType)
-    {
-        await _context.RoomTypes.AddAsync(roomType);
-    }
-
-    public Task DeleteAsync(RoomType roomType)
-    {
-        _context.RoomTypes.Remove(roomType);
-        return Task.CompletedTask;
-    }
-
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
+    public RoomTypeRepository(ApplicationDbContext context) : base(context) {}
 }

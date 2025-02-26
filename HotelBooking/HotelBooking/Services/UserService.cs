@@ -56,6 +56,16 @@ public class UserService : IUserService
         
         var result = await _userManager.CreateAsync(newUser, signUpDto.Password);
         
+        if (!result.Succeeded && result == null)
+        {
+            string errors = string.Join(",", 
+                result.Errors.Select(x => x.Description));
+
+            Console.WriteLine("Creature failed" + errors);
+
+            throw new SignUpFailedException(errors);
+        }
+        
         var role = isAdmin ? "Admin" : "Client";
         
         //Add new User to Client/Admin context
@@ -79,14 +89,6 @@ public class UserService : IUserService
         }
         
         await _userManager.AddToRoleAsync(newUser, role);
-
-        if (!result.Succeeded)
-        {
-            string errors = string.Join(",", 
-                result.Errors.Select(x => x.Description));
-
-            throw new SignUpFailedException(errors);
-        }
 
         return new AuthDto
         {
@@ -157,7 +159,7 @@ public class UserService : IUserService
         if (user == null)
             throw new NotFoundException("User not found");
         
-        await _userRepository.DeleteAsync(user);
+        await _userRepository.Delete(user);
         await _userRepository.SaveChangesAsync();
     }
 }

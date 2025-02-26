@@ -83,7 +83,7 @@ public class RoomTypeService : IRoomTypeService
         if (roomType == null)
             throw new NotFoundException("Room type not found");
         
-        await _roomTypeRepository.DeleteAsync(roomType);
+        await _roomTypeRepository.Delete(roomType);
         await _roomTypeRepository.SaveChangesAsync();
     }
 }

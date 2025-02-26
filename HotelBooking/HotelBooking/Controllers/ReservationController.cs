@@ -52,7 +52,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Client")]
     public async Task<ActionResult<ReservationForClientDto>> GetCurrentReservationByIdAsync([FromRoute]int id)
     {
-        var reservation = await _reservationService.GetCurrentReservationAsync(id, User);
+        var reservation = await _reservationService.GetCurrentReservationByIdAsync(id, User);
         
         return Ok(reservation);
     }

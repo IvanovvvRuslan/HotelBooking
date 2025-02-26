@@ -1,21 +1,21 @@
-﻿using HotelBooking.Data;
-using HotelBooking.DTO.RequestDto;
+﻿using HotelBooking.DTO.RequestDto;
 using HotelBooking.Exceptions;
 using HotelBooking.Models;
 using HotelBooking.Repositories;
 
 namespace HotelBooking.Services;
 
-public interface IReservationroomTypeService
+public interface IReservationRoomTypeService
 {
     Task AddRoomTypesAsync(int reservationId, List<ReservationRoomTypeDto> roomTypes);
+    Task UpdateRoomTypeAsync(int reservationId, List<ReservationRoomTypeDto> newRoomTypes);
 }
 
-public class ReservationroomTypeService : IReservationroomTypeService
+public class ReservationRoomTypeService : IReservationRoomTypeService
 {
     private readonly IReservationRoomTypeRepository _repository;
 
-    public ReservationroomTypeService(IReservationRoomTypeRepository repository)
+    public ReservationRoomTypeService(IReservationRoomTypeRepository repository)
     {
         _repository = repository;
     }
@@ -34,5 +34,14 @@ public class ReservationroomTypeService : IReservationroomTypeService
 
         await _repository.AddReservationRoomTypesAsync(reservationRoomTypes);
         await _repository.SaveChangesAsync();
+    }
+
+    public async Task UpdateRoomTypeAsync(int reservationId, List<ReservationRoomTypeDto> newRoomTypes)
+    {
+        var oldRoomTypes = await _repository.GetByReservationIdAsync(reservationId);
+
+        _repository.RemoveRange(oldRoomTypes);
+
+        await AddRoomTypesAsync(reservationId, newRoomTypes);
     }
 }

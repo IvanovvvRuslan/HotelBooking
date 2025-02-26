@@ -1,4 +1,5 @@
-﻿using HotelBooking.DTO.ResponseDto;
+﻿using HotelBooking.DTO;
+using HotelBooking.DTO.ResponseDto;
 using HotelBooking.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,9 +49,9 @@ public class ClientController : Controller
     //Post
     [HttpPost("admin/clients")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateClientAsync(ClientForAdminDto clientForAdminDto)
+    public async Task<IActionResult> CreateClientAsync(SignUpDto signUpDto)
     {
-        await _clientService.CreateClientAsync(clientForAdminDto);
+        await _clientService.CreateClientAsync(signUpDto);
         
         return Ok("Client created");
     }

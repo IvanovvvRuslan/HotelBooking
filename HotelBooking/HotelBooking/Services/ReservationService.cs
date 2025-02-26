@@ -13,7 +13,7 @@ public interface IReservationService
     Task<IEnumerable<ReservationForAdminDto>> GetAllReservationsAsync();
     Task<ReservationForAdminDto> GetReservationByIdAsync(int id);
     Task<IEnumerable<ReservationForClientDto>> GetAllCurrentReservationsAsync(ClaimsPrincipal user);
-    Task<ReservationForClientDto> GetCurrentReservationAsync(int id, ClaimsPrincipal user);
+    Task<ReservationForClientDto> GetCurrentReservationByIdAsync(int id, ClaimsPrincipal user);
     Task CreateReservationAsync(ReservationForAdminDto reservation);
     Task CreateCurrentReservationAsync (ClaimsPrincipal user, ReservationForClientCreateDto reservation);
     Task UpdateReservationAsync(int id, ReservationForAdminDto reservationForAdminDto);
@@ -27,11 +27,11 @@ public class ReservationService : IReservationService
     private readonly IReservationRepository _reservationRepository;
     private readonly IClientRepository _clientRepository;
     private readonly IReservationRoomTypeRepository _reservationRoomTypeRepository;
-    private readonly IReservationroomTypeService _reservationRoomTypeService;
+    private readonly IReservationRoomTypeService _reservationRoomTypeService;
     private readonly UserContext _userContext;
     
     public ReservationService(IReservationRepository reservationRepository, IClientRepository clientRepository, 
-        IReservationRoomTypeRepository reservationRoomTypeRepository, IReservationroomTypeService reservationRoomTypeService,
+        IReservationRoomTypeRepository reservationRoomTypeRepository, IReservationRoomTypeService reservationRoomTypeService,
         UserContext userContext)
     {
         _reservationRepository = reservationRepository;
@@ -43,7 +43,7 @@ public class ReservationService : IReservationService
 
     public async Task<IEnumerable<ReservationForAdminDto>> GetAllReservationsAsync()
     {
-        var reservations = await _reservationRepository.GetAllAsync();
+        var reservations = await _reservationRepository.GetAllWithRoomTypesAsync();
 
         var reservationsDto = reservations.Adapt<IEnumerable<ReservationForAdminDto>>();
         
@@ -52,7 +52,7 @@ public class ReservationService : IReservationService
 
     public async Task<ReservationForAdminDto> GetReservationByIdAsync(int id)
     {
-        var reservation = await _reservationRepository.GetByIdAsync(id);
+        var reservation = await _reservationRepository.GetByIdWithRoomTypesAsync(id);
 
         if (reservation == null)
             throw new NotFoundException("Reservation not found");
@@ -78,7 +78,7 @@ public class ReservationService : IReservationService
         return reservationsDto;
     }
 
-    public async Task<ReservationForClientDto> GetCurrentReservationAsync(int id, ClaimsPrincipal user)
+    public async Task<ReservationForClientDto> GetCurrentReservationByIdAsync(int id, ClaimsPrincipal user)
     {
         var userId = int.Parse(_userContext.UserId);
         
@@ -159,6 +159,8 @@ public class ReservationService : IReservationService
         oldReservation.Description = reservationForAdminDto.Description;
         
         await _reservationRepository.SaveChangesAsync();
+        
+        await _reservationRoomTypeService.UpdateRoomTypeAsync(oldReservation.Id, reservationForAdminDto.RoomTypes);
     }
 
     public async Task UpdateCurrentReservationAsync(int id, ReservationForClientUpdateDto reservationForClientUpdateDto, ClaimsPrincipal user)
@@ -190,7 +192,7 @@ public class ReservationService : IReservationService
         if (reservation == null)
             throw new NotFoundException("Reservation not found");
         
-        await _reservationRepository.DeleteAsync(reservation);
+        await _reservationRepository.Delete(reservation);
         await _reservationRepository.SaveChangesAsync();
     }
 
@@ -208,7 +210,7 @@ public class ReservationService : IReservationService
         if (reservation == null)
             throw new NotFoundException("Reservation not found");
         
-        await _reservationRepository.DeleteAsync(reservation);
+        await _reservationRepository.Delete(reservation);
         await _reservationRepository.SaveChangesAsync();
     }
 }
