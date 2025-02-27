@@ -22,7 +22,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<ReservationForAdminDto>>> GetAllReservationsAsync()
     {
-        var reservations = await _reservationService.GetAllReservationsAsync();
+        var reservations = await _reservationService.GetAllAsync();
         
         return Ok(reservations);
     }
@@ -32,7 +32,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ReservationForAdminDto>> GetReservationByIdAsync([FromRoute]int id)
     {
-        var reservation = await _reservationService.GetReservationByIdAsync(id);
+        var reservation = await _reservationService.GetByIdAsync(id);
         
         return Ok(reservation);
     }
@@ -102,7 +102,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteReservationAsync([FromRoute] int id)
     {
-        await _reservationService.DeleteReservationAsync(id);
+        await _reservationService.DeleteAsync(id);
         
         return Ok("Reservation deleted");
     }

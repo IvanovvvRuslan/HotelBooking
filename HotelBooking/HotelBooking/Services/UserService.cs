@@ -10,17 +10,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Services;
 
-public interface IUserService
+public interface IUserService : IGenericService<User, UserDto>
 {
     Task<AuthDto> CreateUserAsync(SignUpDto signUpDto, bool isAdmin);
     Task<AuthDto> LoginUserAsync(SignInDto signInDto);
-    Task<IEnumerable<UserDto>> GetAllUsersAsync();
-    Task<UserDto> GetUserByIdAsync(int id);
-    Task PatchUserAsync(int id, UserDto userDto);
-    Task DeleteUserAsync(int id);
+    Task UpdateUserAsync(int id, UserDto userDto);
 }
 
-public class UserService : IUserService
+public class UserService : GenericService<User, UserDto>, IUserService
 {
     private readonly UserManager<User> _userManager;
     private readonly IJwtService _jwtService;
@@ -30,7 +27,7 @@ public class UserService : IUserService
     private readonly IClientRepository _clientRepository;
 
     public UserService(UserManager<User> userManager, IJwtService jwtService, ApplicationDbContext context,
-        IUserRepository repository, IAdminRepository adminRepository, IClientRepository clientRepository)
+        IUserRepository repository, IAdminRepository adminRepository, IClientRepository clientRepository) : base(repository)
     {
         _userManager = userManager;
         _jwtService = jwtService;
@@ -114,28 +111,7 @@ public class UserService : IUserService
         };
     }
 
-    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
-    {
-        var users = await _userRepository.GetAllAsync();
-
-        var usersDto = users.Adapt<IEnumerable<UserDto>>();
-
-        return usersDto;
-    }
-
-    public async Task<UserDto> GetUserByIdAsync(int id)
-    {
-        var user = await _userRepository.GetByIdAsync(id);
-        
-        if (user == null)
-            throw new NotFoundException("User not found");
-
-        var userDto = user.Adapt<UserDto>();
-        
-        return userDto;
-    }
-
-    public async Task PatchUserAsync(int id, UserDto userDto)
+    public async Task UpdateUserAsync(int id, UserDto userDto)
     {
         var userOld = await _userRepository.GetByIdTrackedAsync(id);
 
@@ -149,17 +125,6 @@ public class UserService : IUserService
         userOld.UserName = userDto.UserName;
         userOld.PhoneNumber = userDto.PhoneNumber;
         
-        await _userRepository.SaveChangesAsync();
-    }
-
-    public async Task DeleteUserAsync(int id)
-    {
-        var user = await _userRepository.GetByIdTrackedAsync(id);
-
-        if (user == null)
-            throw new NotFoundException("User not found");
-        
-        await _userRepository.Delete(user);
         await _userRepository.SaveChangesAsync();
     }
 }

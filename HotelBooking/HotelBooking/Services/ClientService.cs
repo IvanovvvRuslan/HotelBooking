@@ -10,10 +10,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace HotelBooking.Services;
 
-public interface IClientService
+public interface IClientService : IGenericService<Client, ClientForAdminDto>
 {
-    Task<IEnumerable<ClientForAdminDto>> GetAllClientsAsync();
-    Task<ClientForAdminDto> GetClientByIdAsync(int id);
     Task<ClientForUserDto> GetCurrentClientAsync(ClaimsPrincipal user);
     Task CreateClientAsync(SignUpDto signUpDto);
     Task UpdateClientAsync(int id, ClientForAdminDto clientForAdminDto);
@@ -22,7 +20,7 @@ public interface IClientService
     Task DeleteCurrentClientAsync(ClaimsPrincipal user);
 }
 
-public class ClientService : IClientService
+public class ClientService : GenericService<Client, ClientForAdminDto>, IClientService
 {
     private readonly IClientRepository _clientRepository;
     private readonly UserManager<User> _userManager;
@@ -30,34 +28,12 @@ public class ClientService : IClientService
     private readonly IUserService _userService;
     
     public ClientService(IClientRepository clientRepository, UserManager<User> userManager, UserContext userContext,
-        IUserService userService)
+        IUserService userService) : base(clientRepository)
     {
         _clientRepository = clientRepository;
         _userManager = userManager;
         _userContext = userContext;
         _userService = userService;
-    }
-
-
-    public async Task<IEnumerable<ClientForAdminDto>> GetAllClientsAsync()
-    {
-        var clients = await _clientRepository.GetAllAsync();
-        
-        var clientsDto = clients.Adapt<IEnumerable<ClientForAdminDto>>();
-        
-        return clientsDto;
-    }
-
-    public async Task<ClientForAdminDto> GetClientByIdAsync(int id)
-    {
-        var client = await _clientRepository.GetByIdAsync(id);
-
-        if (client == null)
-            throw new NotFoundException("Client not found");
-        
-        var clientDto = client.Adapt<ClientForAdminDto>();
-        
-        return clientDto;
     }
 
     public async Task<ClientForUserDto> GetCurrentClientAsync(ClaimsPrincipal user)
@@ -143,7 +119,7 @@ public class ClientService : IClientService
         
         if (client != null)
         {
-            await _clientRepository.Delete(client);
+            _clientRepository.Delete(client);
             await _clientRepository.SaveChangesAsync();    
         }
     }
@@ -166,7 +142,7 @@ public class ClientService : IClientService
 
         if (client != null)
         {
-            await _clientRepository.Delete(client);
+            _clientRepository.Delete(client);
             await _clientRepository.SaveChangesAsync();
         }
     }

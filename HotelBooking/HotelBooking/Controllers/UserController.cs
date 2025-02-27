@@ -21,7 +21,8 @@ public class UserController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<UserDto>> GetAllUsersAsync()
     {
-        var users = await _userService.GetAllUsersAsync();
+        //var users = await _userService.GetAllUsersAsync();
+        var users = await _userService.GetAllAsync();
         return Ok(users);
     }
     
@@ -30,7 +31,7 @@ public class UserController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<UserDto>> GetUserByIdAsync(int id)
     {
-        var user = await _userService.GetUserByIdAsync(id);
+        var user = await _userService.GetByIdAsync(id);
         
         return Ok(user);
     }
@@ -40,7 +41,7 @@ public class UserController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateUserAsync([FromRoute] int id, [FromBody]UserDto userDto)
     {
-        await _userService.PatchUserAsync(id, userDto);
+        await _userService.UpdateUserAsync(id, userDto);
         
         return Ok("User updated");
     }
@@ -50,7 +51,7 @@ public class UserController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUserAsync([FromRoute] int id)
     {
-        await _userService.DeleteUserAsync(id);
+        await _userService.DeleteAsync(id);
         
         return Ok("User deleted");
     }

@@ -21,7 +21,7 @@ public class ClientController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<ClientForAdminDto>>> GetAllClientsAsync()
     {
-        var clients = await _clientService.GetAllClientsAsync();
+        var clients = await _clientService.GetAllAsync();
         
         return Ok(clients);
     }
@@ -31,7 +31,7 @@ public class ClientController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ClientForAdminDto>> GetClientByIdAsync([FromRoute]int id)
     {
-        var client = await _clientService.GetClientByIdAsync(id);
+        var client = await _clientService.GetByIdAsync(id);
         
         return Ok(client);
     }

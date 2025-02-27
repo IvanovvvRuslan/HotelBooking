@@ -8,21 +8,18 @@ using Mapster;
 
 namespace HotelBooking.Services;
 
-public interface IReservationService
+public interface IReservationService : IGenericService<Reservation, ReservationForAdminDto>
 {
-    Task<IEnumerable<ReservationForAdminDto>> GetAllReservationsAsync();
-    Task<ReservationForAdminDto> GetReservationByIdAsync(int id);
     Task<IEnumerable<ReservationForClientDto>> GetAllCurrentReservationsAsync(ClaimsPrincipal user);
     Task<ReservationForClientDto> GetCurrentReservationByIdAsync(int id, ClaimsPrincipal user);
     Task CreateReservationAsync(ReservationForAdminDto reservation);
     Task CreateCurrentReservationAsync (ClaimsPrincipal user, ReservationForClientCreateDto reservation);
     Task UpdateReservationAsync(int id, ReservationForAdminDto reservationForAdminDto);
     Task UpdateCurrentReservationAsync (int id, ReservationForClientUpdateDto reservationForClientUpdateDto, ClaimsPrincipal user);
-    Task DeleteReservationAsync(int id);
     Task DeleteCurrentReservationAsync(int id, ClaimsPrincipal user);
 }
 
-public class ReservationService : IReservationService
+public class ReservationService : GenericService<Reservation, ReservationForAdminDto>, IReservationService
 {
     private readonly IReservationRepository _reservationRepository;
     private readonly IClientRepository _clientRepository;
@@ -32,34 +29,13 @@ public class ReservationService : IReservationService
     
     public ReservationService(IReservationRepository reservationRepository, IClientRepository clientRepository, 
         IReservationRoomTypeRepository reservationRoomTypeRepository, IReservationRoomTypeService reservationRoomTypeService,
-        UserContext userContext)
+        UserContext userContext) : base (reservationRepository)
     {
         _reservationRepository = reservationRepository;
         _clientRepository = clientRepository;
         _reservationRoomTypeRepository = reservationRoomTypeRepository;
         _reservationRoomTypeService = reservationRoomTypeService;
         _userContext = userContext;
-    }
-
-    public async Task<IEnumerable<ReservationForAdminDto>> GetAllReservationsAsync()
-    {
-        var reservations = await _reservationRepository.GetAllWithRoomTypesAsync();
-
-        var reservationsDto = reservations.Adapt<IEnumerable<ReservationForAdminDto>>();
-        
-        return reservationsDto;
-    }
-
-    public async Task<ReservationForAdminDto> GetReservationByIdAsync(int id)
-    {
-        var reservation = await _reservationRepository.GetByIdWithRoomTypesAsync(id);
-
-        if (reservation == null)
-            throw new NotFoundException("Reservation not found");
-
-        var reservationDto = reservation.Adapt<ReservationForAdminDto>();
-
-        return reservationDto;
     }
 
     public async Task<IEnumerable<ReservationForClientDto>> GetAllCurrentReservationsAsync(ClaimsPrincipal user)
@@ -182,17 +158,6 @@ public class ReservationService : IReservationService
         oldReservation.GuestCount = reservationForClientUpdateDto.GuestCount;
         oldReservation.Description = reservationForClientUpdateDto.Description;
         
-        await _reservationRepository.SaveChangesAsync();
-    }
-
-    public async Task DeleteReservationAsync(int id)
-    {
-        var reservation = await _reservationRepository.GetByIdAsync(id);
-
-        if (reservation == null)
-            throw new NotFoundException("Reservation not found");
-        
-        await _reservationRepository.Delete(reservation);
         await _reservationRepository.SaveChangesAsync();
     }
 
