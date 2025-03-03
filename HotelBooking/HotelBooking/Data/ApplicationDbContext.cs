@@ -16,6 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<ReservationRoomType> ReservationRoomTypes { get; set; }
     public DbSet<RoomType> RoomTypes { get; set; }
+    public DbSet<Room> Rooms { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

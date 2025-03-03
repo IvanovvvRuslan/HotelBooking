@@ -43,9 +43,9 @@ public class RoomTypeController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateRoomTypeAsync([FromBody]RoomTypeDto roomTypeDto)
     {
-        await _roomTypeService.CreateRoomTypeAsync(roomTypeDto);
+        await _roomTypeService.CreateAsync(roomTypeDto);
         
-        return Ok(roomTypeDto);
+            return Ok("Room Type created");
     }
     
     //Patch
@@ -53,7 +53,7 @@ public class RoomTypeController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateRoomTypeAsync([FromRoute]int id, [FromBody]RoomTypeDto roomTypeDto)
     {
-        await _roomTypeService.UpdateRoomTypeAsync(id, roomTypeDto);
+        await _roomTypeService.UpdateAsync(id, roomTypeDto);
         
         return Ok("Room Type Updated");
     }
@@ -61,7 +61,7 @@ public class RoomTypeController : ControllerBase
     //Delete
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteRoomTypeAsync([FromRoute] int id)
+    public async Task<IActionResult> DeleteRoomTypeAsync([FromRoute]int id)
     {
         await _roomTypeService.DeleteAsync(id);
         

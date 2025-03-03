@@ -130,6 +130,32 @@ namespace HotelBooking.Migrations
                     b.ToTable("ReservationRoomTypes");
                 });
 
+            modelBuilder.Entity("HotelBooking.Models.Room", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoomTypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomTypeId");
+
+                    b.ToTable("Rooms");
+                });
+
             modelBuilder.Entity("HotelBooking.Models.RoomType", b =>
                 {
                     b.Property<int>("Id")
@@ -420,6 +446,17 @@ namespace HotelBooking.Migrations
                     b.Navigation("RoomType");
                 });
 
+            modelBuilder.Entity("HotelBooking.Models.Room", b =>
+                {
+                    b.HasOne("HotelBooking.Models.RoomType", "RoomType")
+                        .WithMany("Rooms")
+                        .HasForeignKey("RoomTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RoomType");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -484,6 +521,8 @@ namespace HotelBooking.Migrations
             modelBuilder.Entity("HotelBooking.Models.RoomType", b =>
                 {
                     b.Navigation("Reservations");
+
+                    b.Navigation("Rooms");
                 });
 
             modelBuilder.Entity("HotelBooking.Models.User", b =>

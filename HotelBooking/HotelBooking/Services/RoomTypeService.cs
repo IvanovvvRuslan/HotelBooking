@@ -9,8 +9,8 @@ namespace HotelBooking.Services;
 
 public interface IRoomTypeService : IGenericService<RoomType, RoomTypeDto>
 {
-    Task CreateRoomTypeAsync(RoomTypeDto roomTypeDto);
-    Task UpdateRoomTypeAsync(int id, RoomTypeDto roomTypeDto);
+    Task CreateAsync(RoomTypeDto roomTypeDto);
+    Task UpdateAsync(int id, RoomTypeDto roomTypeDto);
 }
 
 public class RoomTypeService : GenericService<RoomType, RoomTypeDto>, IRoomTypeService
@@ -22,7 +22,7 @@ public class RoomTypeService : GenericService<RoomType, RoomTypeDto>, IRoomTypeS
         _roomTypeRepository = roomTypeRepository;
     }
 
-    public async Task CreateRoomTypeAsync(RoomTypeDto roomTypeDto)
+    public async Task CreateAsync(RoomTypeDto roomTypeDto)
     {
         var newRoomType = new RoomType
         {
@@ -36,7 +36,7 @@ public class RoomTypeService : GenericService<RoomType, RoomTypeDto>, IRoomTypeS
         await _roomTypeRepository.SaveChangesAsync();
     }
 
-    public async Task UpdateRoomTypeAsync(int id, RoomTypeDto roomTypeDto)
+    public async Task UpdateAsync(int id, RoomTypeDto roomTypeDto)
     {
         var oldRoomType = await _roomTypeRepository.GetByIdTrackedAsync(id);
 
