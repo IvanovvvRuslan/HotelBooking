@@ -1,4 +1,6 @@
-﻿using HotelBooking.Data;
+﻿using System.Data;
+using HotelBooking.Data;
+using HotelBooking.DTO.RequestDto;
 using HotelBooking.Exceptions;
 using HotelBooking.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +14,8 @@ public interface IReservationRepository : IGenericRepository<Reservation>
     Task<IEnumerable<Reservation>> GetAllWithRoomTypesAsync();
     Task<Reservation> GetByIdWithRoomTypesAsync(int id);
     Task<Reservation> GetByIdClientCurrentAsync(int id, int clientId);
+    Task CreateReservationWithTransactionAsync(Reservation reservation,
+        List<ReservationRoomTypeDto> reservationRoomTypes);
 }
 
 public class ReservationRepository : GenericRepository<Reservation>, IReservationRepository
@@ -70,5 +74,49 @@ public class ReservationRepository : GenericRepository<Reservation>, IReservatio
             .FirstOrDefaultAsync(r => r.Id == id && r.ClientId == clientId);
         
         return reservation;
+    }
+
+    public async Task CreateReservationWithTransactionAsync(Reservation reservation,
+        List<ReservationRoomTypeDto> reservationRoomTypes)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
+        try
+        {
+            foreach (var roomType in reservationRoomTypes)
+            {
+                var availableRoomsCount = await IsRoomTypeAvailable(
+                    roomType.RoomTypeId,
+                    reservation.CheckInDate,
+                    reservation.CheckOutDate);
+                
+                if (availableRoomsCount < roomType.ReservedRoomCount)
+                    throw new InvalidOperationException($"{availableRoomsCount} rooms of this type is/are available for the requested dates.");
+            }
+            
+            await CreateAsync(reservation);
+            await SaveChangesAsync();
+            
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task<byte> IsRoomTypeAvailable(int roomTypeId, DateTime checkIn, DateTime checkOut)
+    {
+        var reservedCount = await _context.ReservationRoomTypes
+            .Where(rrt => rrt.RoomTypeId == roomTypeId
+            && checkIn.Date < rrt.Reservation.CheckOutDate.Date
+            && checkOut.Date > rrt.Reservation.CheckInDate.Date)
+            .SumAsync(rrt => rrt.ReservedRoomCount);
+        
+        var totalRooms = await _context.Rooms
+            .CountAsync(r => r.RoomTypeId == roomTypeId);
+        
+        return (byte)(totalRooms - reservedCount);
     }
 }

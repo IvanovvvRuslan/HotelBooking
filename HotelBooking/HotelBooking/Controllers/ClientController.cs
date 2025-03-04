@@ -41,7 +41,7 @@ public class ClientController : Controller
     [Authorize(Roles = "Client")]
     public async Task<ActionResult<ClientForAdminDto>> GetCurrentClientAsync()
     {
-        var client = await _clientService.GetCurrentClientAsync(User);
+        var client = await _clientService.GetCurrentAsync(User);
         
         return Ok(client);
     }
@@ -51,7 +51,7 @@ public class ClientController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateClientAsync(SignUpDto signUpDto)
     {
-        await _clientService.CreateClientAsync(signUpDto);
+        await _clientService.CreateAsync(signUpDto);
         
         return Ok("Client created");
     }
@@ -61,7 +61,7 @@ public class ClientController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateClientAsync([FromRoute]int id, [FromBody]ClientForAdminDto clientForAdminDto)
     {
-        await _clientService.UpdateClientAsync(id, clientForAdminDto);
+        await _clientService.UpdateAsync(id, clientForAdminDto);
         
         return Ok("Client updated");
     }
@@ -71,7 +71,7 @@ public class ClientController : Controller
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> UpdateCurrentClientAsync([FromBody] ClientForUserDto clientForUserDto)
     {
-        await _clientService.UpdateCurrentClientAsync(User, clientForUserDto);
+        await _clientService.UpdateCurrentAsync(User, clientForUserDto);
         
         return Ok("Account updated");
     }
@@ -81,7 +81,7 @@ public class ClientController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteClientAsync([FromRoute] int id)
     {
-        await _clientService.DeleteClientAsync(id);
+        await _clientService.DeleteWithUserAsync(id);
         
         return Ok("Client deleted");
     }
@@ -91,7 +91,7 @@ public class ClientController : Controller
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> DeleteCurrentClientAsync()
     {
-        await _clientService.DeleteCurrentClientAsync(User);
+        await _clientService.DeleteCurrentWithUserAsync(User);
         
         return Ok("Account deleted");
     }

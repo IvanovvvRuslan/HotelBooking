@@ -41,7 +41,7 @@ public class UserController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateUserAsync([FromRoute] int id, [FromBody]UserDto userDto)
     {
-        await _userService.UpdateUserAsync(id, userDto);
+        await _userService.UpdateAsync(id, userDto);
         
         return Ok("User updated");
     }

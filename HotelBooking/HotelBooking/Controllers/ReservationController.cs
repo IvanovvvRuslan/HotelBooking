@@ -22,7 +22,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<ReservationForAdminDto>>> GetAllReservationsAsync()
     {
-        var reservations = await _reservationService.GetAllAsync();
+        var reservations = await _reservationService.GetAllWithRoomTypesAsync();
         
         return Ok(reservations);
     }
@@ -32,7 +32,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ReservationForAdminDto>> GetReservationByIdAsync([FromRoute]int id)
     {
-        var reservation = await _reservationService.GetByIdAsync(id);
+        var reservation = await _reservationService.GetByIdWithRoomTypesAsync(id);
         
         return Ok(reservation);
     }
@@ -42,7 +42,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Client")]
     public async Task<ActionResult<IEnumerable<ReservationForClientDto>>> GetAllCurrentReservationsAsync()
     {
-        var reservations = await _reservationService.GetAllCurrentReservationsAsync(User);
+        var reservations = await _reservationService.GetAllCurrentAsync(User);
         
         return Ok(reservations);
     }
@@ -52,7 +52,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Client")]
     public async Task<ActionResult<ReservationForClientDto>> GetCurrentReservationByIdAsync([FromRoute]int id)
     {
-        var reservation = await _reservationService.GetCurrentReservationByIdAsync(id, User);
+        var reservation = await _reservationService.GetCurrentByIdAsync(id, User);
         
         return Ok(reservation);
     }
@@ -62,7 +62,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateReservationAsync([FromBody] ReservationForAdminDto reservation)
     {
-        await _reservationService.CreateReservationAsync(reservation);
+        await _reservationService.CreateAsync(reservation);
         
         return Ok("Reservation created");
     }
@@ -72,7 +72,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> CreateCurrentReservationAsync([FromBody]ReservationForClientCreateDto reservation)
     {
-       await _reservationService.CreateCurrentReservationAsync(User, reservation);
+       await _reservationService.CreateCurrentAsync(User, reservation);
        
        return Ok("Reservation created");
     }
@@ -82,7 +82,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateReservationAsync([FromRoute]int id, [FromBody]ReservationForAdminDto reservation)
     {
-        await _reservationService.UpdateReservationAsync(id, reservation);
+        await _reservationService.UpdateAsync(id, reservation);
         
         return Ok("Reservation updated");
     }
@@ -92,7 +92,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> UpdateCurrentReservationAsync([FromRoute] int id, [FromBody]ReservationForClientUpdateDto reservation)
     {
-        await _reservationService.UpdateCurrentReservationAsync(id, reservation, User);
+        await _reservationService.UpdateCurrentAsync(id, reservation, User);
         
         return Ok("Reservation updated");
     }
@@ -112,7 +112,7 @@ public class ReservationController : Controller
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> DeleteCurrentReservationAsync([FromRoute] int id)
     {
-        await _reservationService.DeleteCurrentReservationAsync(id, User);
+        await _reservationService.DeleteCurrentAsync(id, User);
         
         return Ok("Reservation deleted");
     }

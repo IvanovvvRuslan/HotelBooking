@@ -11,6 +11,7 @@ public interface IRoomTypeService : IGenericService<RoomType, RoomTypeDto>
 {
     Task CreateAsync(RoomTypeDto roomTypeDto);
     Task UpdateAsync(int id, RoomTypeDto roomTypeDto);
+    Task<decimal> GetPriceAsync(int id);
 }
 
 public class RoomTypeService : GenericService<RoomType, RoomTypeDto>, IRoomTypeService
@@ -49,5 +50,15 @@ public class RoomTypeService : GenericService<RoomType, RoomTypeDto>, IRoomTypeS
         oldRoomType.Description = roomTypeDto.Description;
         
         await _roomTypeRepository.SaveChangesAsync();
+    }
+
+    public async Task<decimal> GetPriceAsync(int id)
+    {
+        var price = await _roomTypeRepository.GetRoomPriceAsync(id);
+
+        if (price == null && price == 0)
+            throw new NotFoundException("Price not found");
+        
+        return price;
     }
 }

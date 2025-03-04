@@ -12,9 +12,9 @@ namespace HotelBooking.Services;
 
 public interface IUserService : IGenericService<User, UserDto>
 {
-    Task<AuthDto> CreateUserAsync(SignUpDto signUpDto, bool isAdmin);
-    Task<AuthDto> LoginUserAsync(SignInDto signInDto);
-    Task UpdateUserAsync(int id, UserDto userDto);
+    Task<AuthDto> CreateAsync(SignUpDto signUpDto, bool isAdmin);
+    Task<AuthDto> LoginAsync(SignInDto signInDto);
+    Task UpdateAsync(int id, UserDto userDto);
 }
 
 public class UserService : GenericService<User, UserDto>, IUserService
@@ -37,7 +37,7 @@ public class UserService : GenericService<User, UserDto>, IUserService
         _clientRepository = clientRepository;
     }
     
-    public async Task<AuthDto> CreateUserAsync(SignUpDto signUpDto, bool isAdmin)
+    public async Task<AuthDto> CreateAsync(SignUpDto signUpDto, bool isAdmin)
     {
         var existingUser = await _userManager.FindByEmailAsync(signUpDto.Email);
         if (existingUser != null)
@@ -93,7 +93,7 @@ public class UserService : GenericService<User, UserDto>, IUserService
         };
     }
 
-    public async Task<AuthDto> LoginUserAsync(SignInDto signInDto)
+    public async Task<AuthDto> LoginAsync(SignInDto signInDto)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == signInDto.Email);
 
@@ -111,7 +111,7 @@ public class UserService : GenericService<User, UserDto>, IUserService
         };
     }
 
-    public async Task UpdateUserAsync(int id, UserDto userDto)
+    public async Task UpdateAsync(int id, UserDto userDto)
     {
         var userOld = await _userRepository.GetByIdTrackedAsync(id);
 

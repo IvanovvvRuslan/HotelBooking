@@ -10,13 +10,15 @@ namespace HotelBooking.Services;
 
 public interface IReservationService : IGenericService<Reservation, ReservationForAdminDto>
 {
-    Task<IEnumerable<ReservationForClientDto>> GetAllCurrentReservationsAsync(ClaimsPrincipal user);
-    Task<ReservationForClientDto> GetCurrentReservationByIdAsync(int id, ClaimsPrincipal user);
-    Task CreateReservationAsync(ReservationForAdminDto reservation);
-    Task CreateCurrentReservationAsync (ClaimsPrincipal user, ReservationForClientCreateDto reservation);
-    Task UpdateReservationAsync(int id, ReservationForAdminDto reservationForAdminDto);
-    Task UpdateCurrentReservationAsync (int id, ReservationForClientUpdateDto reservationForClientUpdateDto, ClaimsPrincipal user);
-    Task DeleteCurrentReservationAsync(int id, ClaimsPrincipal user);
+    Task<IEnumerable<ReservationForAdminDto>> GetAllWithRoomTypesAsync();
+    Task<ReservationForAdminDto> GetByIdWithRoomTypesAsync(int id);
+    Task<IEnumerable<ReservationForClientDto>> GetAllCurrentAsync(ClaimsPrincipal user);
+    Task<ReservationForClientDto> GetCurrentByIdAsync(int id, ClaimsPrincipal user);
+    Task CreateAsync(ReservationForAdminDto reservation);
+    Task CreateCurrentAsync (ClaimsPrincipal user, ReservationForClientCreateDto reservation);
+    Task UpdateAsync(int id, ReservationForAdminDto reservationForAdminDto);
+    Task UpdateCurrentAsync (int id, ReservationForClientUpdateDto reservationForClientUpdateDto, ClaimsPrincipal user);
+    Task DeleteCurrentAsync(int id, ClaimsPrincipal user);
 }
 
 public class ReservationService : GenericService<Reservation, ReservationForAdminDto>, IReservationService
@@ -25,20 +27,43 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
     private readonly IClientRepository _clientRepository;
     private readonly IReservationRoomTypeRepository _reservationRoomTypeRepository;
     private readonly IReservationRoomTypeService _reservationRoomTypeService;
+    private readonly IRoomTypeService _roomTypeService;
     private readonly UserContext _userContext;
     
     public ReservationService(IReservationRepository reservationRepository, IClientRepository clientRepository, 
         IReservationRoomTypeRepository reservationRoomTypeRepository, IReservationRoomTypeService reservationRoomTypeService,
-        UserContext userContext) : base (reservationRepository)
+        IRoomTypeService roomTypeService, UserContext userContext) : base (reservationRepository)
     {
         _reservationRepository = reservationRepository;
         _clientRepository = clientRepository;
         _reservationRoomTypeRepository = reservationRoomTypeRepository;
         _reservationRoomTypeService = reservationRoomTypeService;
+        _roomTypeService = roomTypeService;
         _userContext = userContext;
     }
 
-    public async Task<IEnumerable<ReservationForClientDto>> GetAllCurrentReservationsAsync(ClaimsPrincipal user)
+    public async Task<IEnumerable<ReservationForAdminDto>> GetAllWithRoomTypesAsync()
+    {
+        var reservations = await _reservationRepository.GetAllWithRoomTypesAsync();
+
+        var reservationsDto = reservations.Adapt<IEnumerable<ReservationForAdminDto>>();
+        
+        return reservationsDto;
+    }
+
+    public async Task<ReservationForAdminDto> GetByIdWithRoomTypesAsync(int id)
+    {
+        var reservation = await _reservationRepository.GetByIdWithRoomTypesAsync(id);
+
+        if (reservation == null)
+            throw new NotFoundException("Reservation not found");
+        
+        var reservationDto = reservation.Adapt<ReservationForAdminDto>();
+        
+        return reservationDto;
+    }
+
+    public async Task<IEnumerable<ReservationForClientDto>> GetAllCurrentAsync(ClaimsPrincipal user)
     {
         var userId = int.Parse(_userContext.UserId);
         
@@ -54,7 +79,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         return reservationsDto;
     }
 
-    public async Task<ReservationForClientDto> GetCurrentReservationByIdAsync(int id, ClaimsPrincipal user)
+    public async Task<ReservationForClientDto> GetCurrentByIdAsync(int id, ClaimsPrincipal user)
     {
         var userId = int.Parse(_userContext.UserId);
         
@@ -73,7 +98,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         return reservationDto;
     }
 
-    public async Task CreateReservationAsync(ReservationForAdminDto reservation)
+    public async Task CreateAsync(ReservationForAdminDto reservation)
     {
         var newReservation = new Reservation
         {
@@ -86,13 +111,12 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
             Description = reservation.Description
         };
         
-        await _reservationRepository.CreateAsync(newReservation);
-        await _reservationRepository.SaveChangesAsync();
+        await _reservationRepository.CreateReservationWithTransactionAsync(newReservation, reservation.RoomTypes);
         
-        await _reservationRoomTypeService.AddRoomTypesAsync(newReservation.Id, reservation.RoomTypes);
+        await _reservationRoomTypeService.AddAsync(newReservation.Id, reservation.RoomTypes);
     }
 
-    public async Task CreateCurrentReservationAsync(ClaimsPrincipal user, ReservationForClientCreateDto reservation)
+    public async Task CreateCurrentAsync(ClaimsPrincipal user, ReservationForClientCreateDto reservation)
     {
         var userId = int.Parse(_userContext.UserId);
         
@@ -110,16 +134,16 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
             GuestCount = reservation.GuestCount,
             Description = reservation.Description
         };
-
+        
         newReservation.ClientId = client.Id;
+        newReservation.TotalPrice = await CalculateTotalPrice(reservation);
         
-        await _reservationRepository.CreateAsync(newReservation);
-        await _reservationRepository.SaveChangesAsync();
+        await _reservationRepository.CreateReservationWithTransactionAsync(newReservation, reservation.RoomTypes);
         
-        await _reservationRoomTypeService.AddRoomTypesAsync(newReservation.Id, reservation.RoomTypes);
+        await _reservationRoomTypeService.AddAsync(newReservation.Id, reservation.RoomTypes);
     }
 
-    public async Task UpdateReservationAsync(int id, ReservationForAdminDto reservationForAdminDto)
+    public async Task UpdateAsync(int id, ReservationForAdminDto reservationForAdminDto)
     {
         var oldReservation = await _reservationRepository.GetByIdTrackedAsync(id);
 
@@ -136,10 +160,10 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         
         await _reservationRepository.SaveChangesAsync();
         
-        await _reservationRoomTypeService.UpdateRoomTypeAsync(oldReservation.Id, reservationForAdminDto.RoomTypes);
+        await _reservationRoomTypeService.UpdateAsync(oldReservation.Id, reservationForAdminDto.RoomTypes);
     }
 
-    public async Task UpdateCurrentReservationAsync(int id, ReservationForClientUpdateDto reservationForClientUpdateDto, ClaimsPrincipal user)
+    public async Task UpdateCurrentAsync(int id, ReservationForClientUpdateDto reservationForClientUpdateDto, ClaimsPrincipal user)
     {
         var userId = int.Parse(_userContext.UserId);
         
@@ -161,7 +185,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         await _reservationRepository.SaveChangesAsync();
     }
 
-    public async Task DeleteCurrentReservationAsync(int id, ClaimsPrincipal user)
+    public async Task DeleteCurrentAsync(int id, ClaimsPrincipal user)
     {
         var userId = int.Parse(_userContext.UserId);
         
@@ -177,5 +201,20 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         
         await _reservationRepository.Delete(reservation);
         await _reservationRepository.SaveChangesAsync();
+    }
+
+    private async Task<decimal> CalculateTotalPrice(ReservationForClientCreateDto reservation)
+    {
+        decimal totalPrice = 0;
+        
+        int totalDays = (reservation.CheckOutDate - reservation.CheckInDate).Days;
+
+        foreach (var roomType in reservation.RoomTypes)
+        {
+            decimal roomPrice = await _roomTypeService.GetPriceAsync(roomType.RoomTypeId);
+            totalPrice += roomPrice * roomType.ReservedRoomCount * totalDays;
+        }
+        
+        return totalPrice;
     }
 }

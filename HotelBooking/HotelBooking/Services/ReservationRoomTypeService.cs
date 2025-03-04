@@ -7,8 +7,8 @@ namespace HotelBooking.Services;
 
 public interface IReservationRoomTypeService
 {
-    Task AddRoomTypesAsync(int reservationId, List<ReservationRoomTypeDto> roomTypes);
-    Task UpdateRoomTypeAsync(int reservationId, List<ReservationRoomTypeDto> newRoomTypes);
+    Task AddAsync(int reservationId, List<ReservationRoomTypeDto> roomTypes);
+    Task UpdateAsync(int reservationId, List<ReservationRoomTypeDto> newRoomTypes);
 }
 
 public class ReservationRoomTypeService : IReservationRoomTypeService
@@ -20,7 +20,7 @@ public class ReservationRoomTypeService : IReservationRoomTypeService
         _repository = repository;
     }
     
-    public async Task AddRoomTypesAsync(int reservationId, List<ReservationRoomTypeDto> roomTypes)
+    public async Task AddAsync(int reservationId, List<ReservationRoomTypeDto> roomTypes)
     {
         if (roomTypes == null && !roomTypes.Any())
             throw new NotFoundException("Room types are empty or not found");
@@ -36,12 +36,12 @@ public class ReservationRoomTypeService : IReservationRoomTypeService
         await _repository.SaveChangesAsync();
     }
 
-    public async Task UpdateRoomTypeAsync(int reservationId, List<ReservationRoomTypeDto> newRoomTypes)
+    public async Task UpdateAsync(int reservationId, List<ReservationRoomTypeDto> newRoomTypes)
     {
         var oldRoomTypes = await _repository.GetByReservationIdAsync(reservationId);
 
         _repository.RemoveRange(oldRoomTypes);
 
-        await AddRoomTypesAsync(reservationId, newRoomTypes);
+        await AddAsync(reservationId, newRoomTypes);
     }
 }

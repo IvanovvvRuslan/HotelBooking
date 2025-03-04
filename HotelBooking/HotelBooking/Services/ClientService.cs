@@ -12,12 +12,12 @@ namespace HotelBooking.Services;
 
 public interface IClientService : IGenericService<Client, ClientForAdminDto>
 {
-    Task<ClientForUserDto> GetCurrentClientAsync(ClaimsPrincipal user);
-    Task CreateClientAsync(SignUpDto signUpDto);
-    Task UpdateClientAsync(int id, ClientForAdminDto clientForAdminDto);
-    Task UpdateCurrentClientAsync(ClaimsPrincipal user, ClientForUserDto clientForUserDto);
-    Task DeleteClientAsync(int id);
-    Task DeleteCurrentClientAsync(ClaimsPrincipal user);
+    Task<ClientForUserDto> GetCurrentAsync(ClaimsPrincipal user);
+    Task CreateAsync(SignUpDto signUpDto);
+    Task UpdateAsync(int id, ClientForAdminDto clientForAdminDto);
+    Task UpdateCurrentAsync(ClaimsPrincipal user, ClientForUserDto clientForUserDto);
+    Task DeleteWithUserAsync(int id);
+    Task DeleteCurrentWithUserAsync(ClaimsPrincipal user);
 }
 
 public class ClientService : GenericService<Client, ClientForAdminDto>, IClientService
@@ -36,7 +36,7 @@ public class ClientService : GenericService<Client, ClientForAdminDto>, IClientS
         _userService = userService;
     }
 
-    public async Task<ClientForUserDto> GetCurrentClientAsync(ClaimsPrincipal user)
+    public async Task<ClientForUserDto> GetCurrentAsync(ClaimsPrincipal user)
     {
         var userId = int.Parse(_userContext.UserId);
         
@@ -57,14 +57,14 @@ public class ClientService : GenericService<Client, ClientForAdminDto>, IClientS
         return clientDto;
     }
 
-    public async Task CreateClientAsync(SignUpDto signUpDto)
+    public async Task CreateAsync(SignUpDto signUpDto)
     {
         bool isAdmin = false;
         
-        await _userService.CreateUserAsync(signUpDto, isAdmin);
+        await _userService.CreateAsync(signUpDto, isAdmin);
     }
 
-    public async Task UpdateClientAsync(int id, ClientForAdminDto clientForAdminDto)
+    public async Task UpdateAsync(int id, ClientForAdminDto clientForAdminDto)
     {
         var oldClient = await _clientRepository.GetByIdTrackedAsync(id);
 
@@ -84,7 +84,7 @@ public class ClientService : GenericService<Client, ClientForAdminDto>, IClientS
         await _clientRepository.SaveChangesAsync();
     }
 
-    public async Task UpdateCurrentClientAsync(ClaimsPrincipal user, ClientForUserDto clientForUserDto)
+    public async Task UpdateCurrentAsync(ClaimsPrincipal user, ClientForUserDto clientForUserDto)
     {
         var userId = int.Parse(_userContext.UserId);
 
@@ -103,7 +103,7 @@ public class ClientService : GenericService<Client, ClientForAdminDto>, IClientS
         await _clientRepository.SaveChangesAsync();
     }
 
-    public async Task DeleteClientAsync(int id)
+    public async Task DeleteWithUserAsync(int id)
     {
         var client = await _clientRepository.GetByIdAsync(id);
         
@@ -124,7 +124,7 @@ public class ClientService : GenericService<Client, ClientForAdminDto>, IClientS
         }
     }
 
-    public async Task DeleteCurrentClientAsync(ClaimsPrincipal user)
+    public async Task DeleteCurrentWithUserAsync(ClaimsPrincipal user)
     {
         var userId = int.Parse(_userContext.UserId);
         
