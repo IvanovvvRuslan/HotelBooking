@@ -12,6 +12,7 @@ public interface IRoomTypeService : IGenericService<RoomType, RoomTypeDto>
     Task CreateAsync(RoomTypeDto roomTypeDto);
     Task UpdateAsync(int id, RoomTypeDto roomTypeDto);
     Task<decimal> GetPriceAsync(int id);
+    Task<byte> GetMaxOccupancyAsync(int id);
 }
 
 public class RoomTypeService : GenericService<RoomType, RoomTypeDto>, IRoomTypeService
@@ -60,5 +61,15 @@ public class RoomTypeService : GenericService<RoomType, RoomTypeDto>, IRoomTypeS
             throw new NotFoundException("Price not found");
         
         return price;
+    }
+
+    public async Task<byte> GetMaxOccupancyAsync(int id)
+    {
+        var occupancy = await _roomTypeRepository.GetMaxOccupancyAsync(id);
+
+        if (occupancy == null && occupancy == 0)
+            throw new NotFoundException("Max occupancy not found");
+        
+        return occupancy;
     }
 }

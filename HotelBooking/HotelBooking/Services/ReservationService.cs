@@ -16,7 +16,7 @@ public interface IReservationService : IGenericService<Reservation, ReservationF
     Task<ReservationForClientDto> GetCurrentByIdAsync(int id, ClaimsPrincipal user);
     Task CreateAsync(ReservationForAdminDto reservation);
     Task CreateCurrentAsync (ClaimsPrincipal user, ReservationForClientCreateDto reservation);
-    Task UpdateAsync(int id, ReservationForAdminDto reservationForAdminDto);
+    Task UpdateAsync(int id, ReservationForAdminDto reservation);
     Task UpdateCurrentAsync (int id, ReservationForClientUpdateDto reservationForClientUpdateDto, ClaimsPrincipal user);
     Task DeleteCurrentAsync(int id, ClaimsPrincipal user);
 }
@@ -110,6 +110,11 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
             GuestCount = reservation.GuestCount,
             Description = reservation.Description
         };
+
+        var clientReservationDto = reservation.Adapt<ReservationForClientCreateDto>();
+        newReservation.TotalPrice = await CalculateTotalPrice(clientReservationDto);
+        
+        await ValidateMaxOccupancy(reservation.GuestCount, reservation.RoomTypes);
         
         await _reservationRepository.CreateReservationWithTransactionAsync(newReservation, reservation.RoomTypes);
         
@@ -137,30 +142,34 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         
         newReservation.ClientId = client.Id;
         newReservation.TotalPrice = await CalculateTotalPrice(reservation);
+
+        await ValidateMaxOccupancy(reservation.GuestCount, reservation.RoomTypes);
         
         await _reservationRepository.CreateReservationWithTransactionAsync(newReservation, reservation.RoomTypes);
         
         await _reservationRoomTypeService.AddAsync(newReservation.Id, reservation.RoomTypes);
     }
 
-    public async Task UpdateAsync(int id, ReservationForAdminDto reservationForAdminDto)
+    public async Task UpdateAsync(int id, ReservationForAdminDto reservation)
     {
         var oldReservation = await _reservationRepository.GetByIdTrackedAsync(id);
 
         if (oldReservation == null)
             throw new NotFoundException("Reservation not found");
         
-        oldReservation.ClientId = reservationForAdminDto.ClientId;
-        oldReservation.CheckInDate = reservationForAdminDto.CheckInDate;
-        oldReservation.CheckOutDate = reservationForAdminDto.CheckOutDate;
-        oldReservation.Status = reservationForAdminDto.Status;
-        oldReservation.TotalPrice = reservationForAdminDto.TotalPrice;
-        oldReservation.GuestCount = reservationForAdminDto.GuestCount;
-        oldReservation.Description = reservationForAdminDto.Description;
+        oldReservation.ClientId = reservation.ClientId;
+        oldReservation.CheckInDate = reservation.CheckInDate;
+        oldReservation.CheckOutDate = reservation.CheckOutDate;
+        oldReservation.Status = reservation.Status;
+        oldReservation.TotalPrice = reservation.TotalPrice;
+        oldReservation.GuestCount = reservation.GuestCount;
+        oldReservation.Description = reservation.Description;
+        
+        await ValidateMaxOccupancy(reservation.GuestCount, reservation.RoomTypes);
         
         await _reservationRepository.SaveChangesAsync();
         
-        await _reservationRoomTypeService.UpdateAsync(oldReservation.Id, reservationForAdminDto.RoomTypes);
+        await _reservationRoomTypeService.UpdateAsync(oldReservation.Id, reservation.RoomTypes);
     }
 
     public async Task UpdateCurrentAsync(int id, ReservationForClientUpdateDto reservationForClientUpdateDto, ClaimsPrincipal user)
@@ -177,8 +186,6 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         if (oldReservation == null)
             throw new NotFoundException("Reservation not found");
         
-        oldReservation.CheckInDate = reservationForClientUpdateDto.CheckInDate;
-        oldReservation.CheckOutDate = reservationForClientUpdateDto.CheckOutDate;
         oldReservation.GuestCount = reservationForClientUpdateDto.GuestCount;
         oldReservation.Description = reservationForClientUpdateDto.Description;
         
@@ -216,5 +223,20 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         }
         
         return totalPrice;
+    }
+
+    private async Task ValidateMaxOccupancy(byte guestCount, List<ReservationRoomTypeDto> roomTypes)
+    {
+        var totalCapacity = 0;
+
+        foreach (var roomType in roomTypes)
+        {
+            var maxRoomOccupancy = await _roomTypeService.GetMaxOccupancyAsync(roomType.RoomTypeId);
+            totalCapacity += maxRoomOccupancy * roomType.ReservedRoomCount;
+        }
+
+        if (guestCount > totalCapacity)
+            throw new InvalidOperationException($"Selected room(s) can accommodate only {totalCapacity} guests, " +
+                                                $"but {guestCount} were requested.");
     }
 }

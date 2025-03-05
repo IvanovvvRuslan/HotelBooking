@@ -9,6 +9,7 @@ namespace HotelBooking.Repositories;
 public interface IRoomTypeRepository : IGenericRepository<RoomType>
 {
     Task<decimal> GetRoomPriceAsync(int id);
+    Task<byte> GetMaxOccupancyAsync(int id);
 }
 
 public class RoomTypeRepository : GenericRepository<RoomType>, IRoomTypeRepository
@@ -26,5 +27,15 @@ public class RoomTypeRepository : GenericRepository<RoomType>, IRoomTypeReposito
             .FirstOrDefaultAsync();
         
         return price;
+    }
+
+    public async Task<byte> GetMaxOccupancyAsync(int id)
+    {
+        var occupancy = await _context.RoomTypes
+            .Where(r => r.Id == id)
+            .Select(r => r.MaxOccupancy)
+            .FirstOrDefaultAsync();
+        
+        return occupancy;
     }
 }
