@@ -42,6 +42,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         _userContext = userContext;
     }
 
+    //For Admin
     public async Task<IEnumerable<ReservationForAdminDto>> GetAllWithRoomTypesAsync()
     {
         var reservations = await _reservationRepository.GetAllWithRoomTypesAsync();
@@ -51,6 +52,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         return reservationsDto;
     }
 
+    //For Admin
     public async Task<ReservationForAdminDto> GetByIdWithRoomTypesAsync(int id)
     {
         var reservation = await _reservationRepository.GetByIdWithRoomTypesAsync(id);
@@ -98,6 +100,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         return reservationDto;
     }
 
+    //For Admin
     public async Task CreateAsync(ReservationForAdminDto reservation)
     {
         var newReservation = new Reservation
@@ -150,6 +153,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         await _reservationRoomTypeService.AddAsync(newReservation.Id, reservation.RoomTypes);
     }
 
+    //For Admin
     public async Task UpdateAsync(int id, ReservationForAdminDto reservation)
     {
         var oldReservation = await _reservationRepository.GetByIdTrackedAsync(id);
