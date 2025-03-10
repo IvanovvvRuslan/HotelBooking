@@ -16,7 +16,6 @@ public class UserController : Controller
         _userService = userService;
     }
     
-    // GET
     [HttpGet]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<UserDto>> GetAllUsersAsync()
@@ -26,7 +25,6 @@ public class UserController : Controller
         return Ok(users);
     }
     
-    //Get
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<UserDto>> GetUserByIdAsync(int id)
@@ -36,7 +34,6 @@ public class UserController : Controller
         return Ok(user);
     }
     
-    //Patch
     [HttpPatch("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateUserAsync([FromRoute] int id, [FromBody]UserDto userDto)
@@ -46,7 +43,6 @@ public class UserController : Controller
         return Ok("User updated");
     }
     
-    //Delete
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUserAsync([FromRoute] int id)

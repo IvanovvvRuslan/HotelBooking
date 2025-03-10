@@ -16,7 +16,6 @@ public class RoomController : Controller
         _roomService = roomService;
     }
     
-    // GET
     [HttpGet]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<RoomDto>>> GetAllRoomsAsync()
@@ -26,7 +25,6 @@ public class RoomController : Controller
         return Ok(rooms);
     }
     
-    //GetById
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<RoomDto>> GetRoomAsync([FromRoute]int id)
@@ -36,7 +34,6 @@ public class RoomController : Controller
         return Ok(room);
     }
     
-    //Post
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateRoomAsync([FromBody]RoomDto roomDto)
@@ -46,7 +43,6 @@ public class RoomController : Controller
         return Ok("Room created");
     }
     
-    //Patch
     [HttpPatch("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateRoomAsync([FromRoute]int id, [FromBody]RoomDto roomDto)
@@ -56,7 +52,6 @@ public class RoomController : Controller
         return Ok("Room updated");
     }
     
-    //Delte
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteRoomAsync([FromRoute] int id)

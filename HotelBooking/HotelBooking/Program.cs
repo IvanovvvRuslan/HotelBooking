@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text;
 using HotelBooking.Data;
 using HotelBooking.Exceptions;
+using HotelBooking.Extensions;
 using HotelBooking.Models;
 using HotelBooking.Options;
 using HotelBooking.Repositories;
@@ -20,26 +21,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddScoped<UserContext>();
-//Services
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<IRoomTypeService, RoomTypeService>();
-builder.Services.AddScoped<IClientService, ClientService>();
-builder.Services.AddScoped<IReservationService, ReservationService>();
-builder.Services.AddScoped<IReservationRoomTypeService, ReservationRoomTypeService>();
-builder.Services.AddScoped<IRoomService, RoomService>();
-builder.Services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
-//Repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAdminRepository, AdminRepository>();
-builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
-builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
-builder.Services.AddScoped<IReservationRoomTypeRepository, ReservationRoomTypeRepository>();
-builder.Services.AddScoped<IRoomRepository, RoomRepository>();
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddApplicationServices();
 
 builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();

@@ -16,7 +16,6 @@ public class AuthController : Controller
         _userService = userService;
     }
     
-    // POST
     [HttpPost("signup")]
     public async Task<ActionResult<AuthDto>> SignUpAsync([FromBody]SignUpDto signUpDto)
     {
@@ -25,7 +24,6 @@ public class AuthController : Controller
         return Ok(result);
     }
     
-    //POST
     [HttpPost("signin")]
     public async Task<ActionResult<AuthDto>> SignInAsync([FromBody] SignInDto signInDto)
     {
@@ -33,7 +31,6 @@ public class AuthController : Controller
         return Ok(result);
     }
     
-    //POST
     [HttpPost("admin")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<AuthDto>> CreateAdminAsync([FromBody] SignUpDto signUpDto)

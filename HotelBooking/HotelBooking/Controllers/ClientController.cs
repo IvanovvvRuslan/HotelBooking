@@ -16,7 +16,6 @@ public class ClientController : Controller
         _clientService = clientService;
     }
     
-    // GET
     [HttpGet("admin/clients")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<ClientForAdminDto>>> GetAllClientsAsync()
@@ -26,7 +25,6 @@ public class ClientController : Controller
         return Ok(clients);
     }
     
-    //GetById
     [HttpGet("admin/clients/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ClientForAdminDto>> GetClientByIdAsync([FromRoute]int id)
@@ -36,7 +34,6 @@ public class ClientController : Controller
         return Ok(client);
     }
     
-    //GetCurrent
     [HttpGet("users/current/client")]
     [Authorize(Roles = "Client")]
     public async Task<ActionResult<ClientForAdminDto>> GetCurrentClientAsync()
@@ -46,7 +43,6 @@ public class ClientController : Controller
         return Ok(client);
     }
     
-    //Post
     [HttpPost("admin/clients")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateClientAsync(SignUpDto signUpDto)
@@ -56,7 +52,6 @@ public class ClientController : Controller
         return Ok("Client created");
     }
     
-    //Patch
     [HttpPatch("admin/clients/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateClientAsync([FromRoute]int id, [FromBody]ClientForAdminDto clientForAdminDto)
@@ -66,7 +61,6 @@ public class ClientController : Controller
         return Ok("Client updated");
     }
     
-    //PatchCurrent
     [HttpPatch("users/current/client")]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> UpdateCurrentClientAsync([FromBody] ClientForUserDto clientForUserDto)
@@ -76,7 +70,6 @@ public class ClientController : Controller
         return Ok("Account updated");
     }
     
-    //Delete
     [HttpDelete("admin/clients/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteClientAsync([FromRoute] int id)
@@ -86,7 +79,6 @@ public class ClientController : Controller
         return Ok("Client deleted");
     }
     
-    //DeleteCurrent
     [HttpDelete("users/current/client")]
     [Authorize(Roles = "Client")]
     public async Task<IActionResult> DeleteCurrentClientAsync()
