@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Data;
+using System.Security.Claims;
 using HotelBooking.DTO.RequestDto;
 using HotelBooking.DTO.ResponseDto;
 using HotelBooking.Exceptions;
@@ -118,10 +119,25 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         newReservation.TotalPrice = await CalculateTotalPrice(clientReservationDto);
         
         await ValidateMaxOccupancy(reservation.GuestCount, reservation.RoomTypes);
-        
-        await _reservationRepository.CreateReservationWithTransactionAsync(newReservation, reservation.RoomTypes);
-        
-        await _reservationRoomTypeService.AddAsync(newReservation.Id, reservation.RoomTypes);
+
+        using var transaction = await _reservationRepository.BeginTransactionAsync(IsolationLevel.Serializable);
+
+        try
+        {
+            await ValidateRoomAvailabilityAsync(reservation.CheckInDate, reservation.CheckOutDate, reservation.RoomTypes);
+
+            await _reservationRepository.CreateAsync(newReservation);
+            await _reservationRepository.SaveChangesAsync();
+
+            await _reservationRoomTypeService.AddAsync(newReservation.Id, reservation.RoomTypes);
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task CreateCurrentAsync(ClaimsPrincipal user, ReservationForClientCreateDto reservation)
@@ -148,9 +164,24 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
 
         await ValidateMaxOccupancy(reservation.GuestCount, reservation.RoomTypes);
         
-        await _reservationRepository.CreateReservationWithTransactionAsync(newReservation, reservation.RoomTypes);
-        
-        await _reservationRoomTypeService.AddAsync(newReservation.Id, reservation.RoomTypes);
+        using var transaction = await _reservationRepository.BeginTransactionAsync(IsolationLevel.Serializable);
+
+        try
+        {
+            await ValidateRoomAvailabilityAsync(reservation.CheckInDate, reservation.CheckOutDate, reservation.RoomTypes);
+            
+            await _reservationRepository.CreateAsync(newReservation);
+            await _reservationRepository.SaveChangesAsync();
+            
+            await _reservationRoomTypeService.AddAsync(newReservation.Id, reservation.RoomTypes);
+            
+            await transaction.CommitAsync();
+        }
+        catch 
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     //For Admin
@@ -242,5 +273,18 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         if (guestCount > totalCapacity)
             throw new InvalidOperationException($"Selected room(s) can accommodate only {totalCapacity} guests, " +
                                                 $"but {guestCount} were requested.");
+    }
+
+    private async Task ValidateRoomAvailabilityAsync(DateTime checkInDate, DateTime checkOutDate, List<ReservationRoomTypeDto> roomTypes)
+    {
+        foreach (var roomType in roomTypes)
+        {
+            var availableRoomsCount = await _reservationRepository.IsRoomTypeAvailable(
+                roomType.RoomTypeId, checkInDate, checkOutDate);
+
+            if (availableRoomsCount < roomType.ReservedRoomCount)
+                throw new InvalidOperationException(
+                    $"{availableRoomsCount} rooms of this type is/are available for the requested dates.");
+        }
     }
 }

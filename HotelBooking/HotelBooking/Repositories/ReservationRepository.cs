@@ -4,6 +4,7 @@ using HotelBooking.DTO.RequestDto;
 using HotelBooking.Exceptions;
 using HotelBooking.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace HotelBooking.Repositories;
 
@@ -14,8 +15,8 @@ public interface IReservationRepository : IGenericRepository<Reservation>
     Task<IEnumerable<Reservation>> GetAllWithRoomTypesAsync();
     Task<Reservation> GetByIdWithRoomTypesAsync(int id);
     Task<Reservation> GetByIdClientCurrentAsync(int id, int clientId);
-    Task CreateReservationWithTransactionAsync(Reservation reservation,
-        List<ReservationRoomTypeDto> reservationRoomTypes);
+    Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel);
+    Task<byte> IsRoomTypeAvailable(int roomTypeId, DateTime checkIn, DateTime checkOut);
 }
 
 public class ReservationRepository : GenericRepository<Reservation>, IReservationRepository
@@ -76,34 +77,9 @@ public class ReservationRepository : GenericRepository<Reservation>, IReservatio
         return reservation;
     }
 
-    public async Task CreateReservationWithTransactionAsync(Reservation reservation,
-        List<ReservationRoomTypeDto> reservationRoomTypes)
+    public async Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
-
-        try
-        {
-            foreach (var roomType in reservationRoomTypes)
-            {
-                var availableRoomsCount = await IsRoomTypeAvailable(
-                    roomType.RoomTypeId,
-                    reservation.CheckInDate,
-                    reservation.CheckOutDate);
-                
-                if (availableRoomsCount < roomType.ReservedRoomCount)
-                    throw new InvalidOperationException($"{availableRoomsCount} rooms of this type is/are available for the requested dates.");
-            }
-            
-            await CreateAsync(reservation);
-            await SaveChangesAsync();
-            
-            await transaction.CommitAsync();
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+        return await _context.Database.BeginTransactionAsync(isolationLevel);
     }
 
     public async Task<byte> IsRoomTypeAvailable(int roomTypeId, DateTime checkIn, DateTime checkOut)
