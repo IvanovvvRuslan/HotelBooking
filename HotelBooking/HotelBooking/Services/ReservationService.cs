@@ -1,11 +1,13 @@
 ﻿using System.Data;
 using System.Security.Claims;
+using HotelBooking.Data;
 using HotelBooking.DTO.RequestDto;
 using HotelBooking.DTO.ResponseDto;
 using HotelBooking.Exceptions;
 using HotelBooking.Models;
 using HotelBooking.Repositories;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Services;
 
@@ -30,10 +32,11 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
     private readonly IReservationRoomTypeService _reservationRoomTypeService;
     private readonly IRoomTypeService _roomTypeService;
     private readonly UserContext _userContext;
-    
+    private readonly ApplicationDbContext _context;
+
     public ReservationService(IReservationRepository reservationRepository, IClientRepository clientRepository, 
         IReservationRoomTypeRepository reservationRoomTypeRepository, IReservationRoomTypeService reservationRoomTypeService,
-        IRoomTypeService roomTypeService, UserContext userContext) : base (reservationRepository)
+        IRoomTypeService roomTypeService, UserContext userContext, ApplicationDbContext context) : base (reservationRepository)
     {
         _reservationRepository = reservationRepository;
         _clientRepository = clientRepository;
@@ -41,6 +44,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         _reservationRoomTypeService = reservationRoomTypeService;
         _roomTypeService = roomTypeService;
         _userContext = userContext;
+        _context = context;
     }
 
     //For Admin
@@ -120,7 +124,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
         
         await ValidateMaxOccupancy(reservation.GuestCount, reservation.RoomTypes);
 
-        using var transaction = await _reservationRepository.BeginTransactionAsync(IsolationLevel.Serializable);
+        using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
         try
         {
@@ -164,7 +168,7 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
 
         await ValidateMaxOccupancy(reservation.GuestCount, reservation.RoomTypes);
         
-        using var transaction = await _reservationRepository.BeginTransactionAsync(IsolationLevel.Serializable);
+        using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
         try
         {

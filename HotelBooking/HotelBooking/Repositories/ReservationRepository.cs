@@ -15,7 +15,6 @@ public interface IReservationRepository : IGenericRepository<Reservation>
     Task<IEnumerable<Reservation>> GetAllWithRoomTypesAsync();
     Task<Reservation> GetByIdWithRoomTypesAsync(int id);
     Task<Reservation> GetByIdClientCurrentAsync(int id, int clientId);
-    Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel);
     Task<byte> IsRoomTypeAvailable(int roomTypeId, DateTime checkIn, DateTime checkOut);
 }
 
@@ -75,11 +74,6 @@ public class ReservationRepository : GenericRepository<Reservation>, IReservatio
             .FirstOrDefaultAsync(r => r.Id == id && r.ClientId == clientId);
         
         return reservation;
-    }
-
-    public async Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
-    {
-        return await _context.Database.BeginTransactionAsync(isolationLevel);
     }
 
     public async Task<byte> IsRoomTypeAvailable(int roomTypeId, DateTime checkIn, DateTime checkOut)
