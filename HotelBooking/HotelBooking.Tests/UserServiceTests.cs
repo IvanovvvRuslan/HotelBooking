@@ -29,20 +29,13 @@ public class UserServiceTests
         var isAdmin = false;
         var userManager = GetUserManager<User>();
         var jwtService = Substitute.For<IJwtService>();
-        var userRepository = Substitute.For<IUserRepository>();
-        var adminRepository = Substitute.For<IAdminRepository>();
         var clientRepository = Substitute.For<IClientRepository>();
         
         jwtService.GenerateToken(Arg.Any<int>(), Arg.Any<string>())
             .Returns(AccessToken);
         userManager.CreateAsync(Arg.Any<User>(), Arg.Any<string>()).Returns(IdentityResult.Success);
-        userManager.FindByEmailAsync(Arg.Any<string>()).Returns((User)null);
-        adminRepository.CreateAsync(Arg.Any<Admin>()).Returns(Task.CompletedTask);
-        clientRepository.CreateAsync(Arg.Any<Client>()).Returns(Task.CompletedTask);
-        userManager.AddToRoleAsync(Arg.Any<User>(), Arg.Any<string>()).Returns(IdentityResult.Success);
-        //using var dbContext = GetDbContext(nameof(CreateAsync_ShouldRunSuccessfully));
-        
-        var userService = new UserService(userManager, jwtService, null, userRepository, adminRepository, clientRepository);
+       
+        var userService = new UserService(userManager, jwtService, null, null, null, clientRepository);
 
         //Act
         var response = await userService.CreateAsync(new SignUpDto
@@ -112,7 +105,6 @@ public class UserServiceTests
         };
         var userManager = GetUserManager<User>();
         var jwtService = Substitute.For<IJwtService>();
-        var userRepository = Substitute.For<IUserRepository>();
         var dbContext = GetDbContext(nameof(LoginAsync_ShouldRunSuccessfully));
         
         await dbContext.Users.AddAsync(user);
@@ -121,7 +113,7 @@ public class UserServiceTests
         userManager.CheckPasswordAsync(user, Password).Returns(true);
         jwtService.GenerateToken(user.Id, Password).Returns(AccessToken);
         
-        var userService = new UserService(userManager, jwtService, dbContext, userRepository, null, null);
+        var userService = new UserService(userManager, jwtService, dbContext, null, null, null);
         
         //Act
         var response = await userService.LoginAsync(new SignInDto
@@ -138,9 +130,8 @@ public class UserServiceTests
     public async Task LoginAsync_ShouldThrowIfUserNotFound()
     {
         //Arrange
-        var userManager = GetUserManager<User>();
         var dbContext = GetDbContext(nameof(LoginAsync_ShouldThrowIfUserNotFound));
-        var userService = new UserService(userManager, null, dbContext, null, null, null);
+        var userService = new UserService(null, null, dbContext, null, null, null);
         
         //Act & Assert
         await Assert.ThrowsAsync<SignInFailedException>(async () => await userService.LoginAsync(new SignInDto
@@ -192,7 +183,6 @@ public class UserServiceTests
         };
         var userRepository = Substitute.For<IUserRepository>();
         userRepository.GetByIdTrackedAsync(UserId).Returns(user);
-        userRepository.SaveChangesAsync().Returns(Task.CompletedTask);
         
         var userService = new UserService(null, null, null, userRepository, null, null);
 
