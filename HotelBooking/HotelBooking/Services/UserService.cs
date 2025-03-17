@@ -53,7 +53,7 @@ public class UserService : GenericService<User, UserDto>, IUserService
         
         var result = await _userManager.CreateAsync(newUser, signUpDto.Password);
         
-        if (!result.Succeeded && result == null)
+        if (!result.Succeeded)
         {
             string errors = string.Join(",", 
                 result.Errors.Select(x => x.Description));
