@@ -1,5 +1,6 @@
 ﻿using HotelBooking.Data;
 using HotelBooking.DTO;
+using HotelBooking.DTO.ResponseDto;
 using HotelBooking.Exceptions;
 using HotelBooking.Models;
 using HotelBooking.Repositories;
@@ -14,6 +15,7 @@ namespace HotelBooking.Tests;
 public class UserServiceTests
 {
     private const string AccessToken = "access_token";
+    private const int UserId = 1;
     private const string Email = "email@email.com";
     private const string Password = "Password";
     private const string FirstName = "Name";
@@ -94,6 +96,133 @@ public class UserServiceTests
             FirstName = FirstName,
             LastName = LastName
         }, isAdmin));
+    }
+
+    [Fact]
+    public async Task LoginAsync_ShouldRunSuccessfully()
+    {
+        //Arrange
+        var user = new User
+        {
+            Id = UserId, 
+            Email = Email,
+            FirstName = FirstName,
+            LastName = LastName,
+            UserName = UserName
+        };
+        var userManager = GetUserManager<User>();
+        var jwtService = Substitute.For<IJwtService>();
+        var userRepository = Substitute.For<IUserRepository>();
+        var dbContext = GetDbContext(nameof(LoginAsync_ShouldRunSuccessfully));
+        
+        await dbContext.Users.AddAsync(user);
+        await dbContext.SaveChangesAsync();
+        
+        userManager.CheckPasswordAsync(user, Password).Returns(true);
+        jwtService.GenerateToken(user.Id, Password).Returns(AccessToken);
+        
+        var userService = new UserService(userManager, jwtService, dbContext, userRepository, null, null);
+        
+        //Act
+        var response = await userService.LoginAsync(new SignInDto
+        {
+            Email = Email,
+            Password = Password
+        });
+        
+        //Assert
+        Assert.Equal(AccessToken, response.AccessToken);
+    }
+
+    [Fact]
+    public async Task LoginAsync_ShouldThrowIfUserNotFound()
+    {
+        //Arrange
+        var userManager = GetUserManager<User>();
+        var dbContext = GetDbContext(nameof(LoginAsync_ShouldThrowIfUserNotFound));
+        var userService = new UserService(userManager, null, dbContext, null, null, null);
+        
+        //Act & Assert
+        await Assert.ThrowsAsync<SignInFailedException>(async () => await userService.LoginAsync(new SignInDto
+        {
+            Email = Email,
+            Password = Password
+        }));
+    }
+    
+    [Fact]
+    public async Task LoginAsync_ShouldThrowIfPasswordIsInvalid()
+    {
+        //Arrange
+        var user = new User()
+        {
+            Id = UserId,
+            Email = Email,
+            FirstName = FirstName,
+            LastName = LastName,
+            UserName = UserName
+        };
+        var userManager = GetUserManager<User>();
+        var dbContext = GetDbContext(nameof(LoginAsync_ShouldThrowIfPasswordIsInvalid));
+
+        await dbContext.Users.AddAsync(user);
+        await dbContext.SaveChangesAsync();
+        
+        userManager.CheckPasswordAsync(user, Password).Returns(false);
+        var userService = new UserService(userManager, null, dbContext, null, null, null);
+        
+        //Act & Assert
+        await Assert.ThrowsAsync<SignInFailedException>(async () => await userService.LoginAsync(new SignInDto
+        {
+            Email = Email,
+            Password = Password
+        }));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldUpdateUser()
+    {
+        //Arrange
+        var user = new User
+        {
+            Id = UserId,
+            FirstName = "OldName",
+            LastName = "OldLast",
+            Email = "old@email.com"
+        };
+        var userRepository = Substitute.For<IUserRepository>();
+        userRepository.GetByIdTrackedAsync(UserId).Returns(user);
+        userRepository.SaveChangesAsync().Returns(Task.CompletedTask);
+        
+        var userService = new UserService(null, null, null, userRepository, null, null);
+
+        var updateDto = new UserDto
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Email = Email
+        };
+        
+        //Act
+        await userService.UpdateAsync(UserId, updateDto);
+        
+        //Assert
+        Assert.Equal(FirstName, user.FirstName);
+        Assert.Equal(LastName, user.LastName);
+        Assert.Equal(Email, user.Email);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldThrowIfUserNotFound()
+    {
+        // Arrange
+        var userRepository = Substitute.For<IUserRepository>();
+        userRepository.GetByIdTrackedAsync(UserId).Returns((User)null);
+        var userService = new UserService(null, null, null, userRepository, null, null);
+        var updateDto = new UserDto();
+        
+        // Act & Assert
+        await Assert.ThrowsAsync<NotFoundException>(async () => await userService.UpdateAsync(UserId, updateDto));
     }
 
     private ApplicationDbContext GetDbContext(string name)
