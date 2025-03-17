@@ -1,15 +1,11 @@
-using System.Security.Claims;
 using System.Text;
 using HotelBooking.Data;
 using HotelBooking.Exceptions;
 using HotelBooking.Extensions;
 using HotelBooking.Models;
 using HotelBooking.Options;
-using HotelBooking.Repositories;
-using HotelBooking.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
