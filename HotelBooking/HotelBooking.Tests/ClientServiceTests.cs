@@ -66,7 +66,7 @@ public class ClientServiceTests
         var clientRepository = Substitute.For<IClientRepository>();
         clientRepository.GetByUserIdAsync(UserId).Returns(new Client());
         
-        var clientUser= userManager.FindByIdAsync("a").Returns((User)null);
+       userManager.FindByIdAsync(UserId.ToString()).Returns((User)null);
         
         var clientService = new ClientService(clientRepository, userManager, userContext, null);
         
