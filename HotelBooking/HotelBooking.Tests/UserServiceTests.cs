@@ -27,7 +27,7 @@ public class UserServiceTests
     {
         //Arrange
         var isAdmin = false;
-        var userManager = GetUserManager<User>();
+        var userManager = Utils.GetUserManager<User>();
         var jwtService = Substitute.For<IJwtService>();
         var clientRepository = Substitute.For<IClientRepository>();
         
@@ -54,7 +54,7 @@ public class UserServiceTests
     {
         //Arrange
         var isAdmin = false;
-        var userManager = GetUserManager<User>();
+        var userManager = Utils.GetUserManager<User>();
         userManager.CreateAsync(Arg.Is<User>(u => u.UserName == UserName), 
             Arg.Is<string>(s => s == Password))
                 .Returns(IdentityResult.Failed(new IdentityError ()));
@@ -76,7 +76,7 @@ public class UserServiceTests
     {
         //Arrange
         var isAdmin = false;
-        var userManager = GetUserManager<User>();
+        var userManager = Utils.GetUserManager<User>();
         userManager.FindByEmailAsync(Arg.Any<string>()).Returns(new User());
         
         var userService = new UserService(userManager, null, null, null, null, null);
@@ -103,9 +103,9 @@ public class UserServiceTests
             LastName = LastName,
             UserName = UserName
         };
-        var userManager = GetUserManager<User>();
+        var userManager = Utils.GetUserManager<User>();
         var jwtService = Substitute.For<IJwtService>();
-        var dbContext = GetDbContext(nameof(LoginAsync_ShouldRunSuccessfully));
+        var dbContext = Utils.GetDbContext(nameof(LoginAsync_ShouldRunSuccessfully));
         
         await dbContext.Users.AddAsync(user);
         await dbContext.SaveChangesAsync();
@@ -130,7 +130,7 @@ public class UserServiceTests
     public async Task LoginAsync_ShouldThrowIfUserNotFound()
     {
         //Arrange
-        var dbContext = GetDbContext(nameof(LoginAsync_ShouldThrowIfUserNotFound));
+        var dbContext = Utils.GetDbContext(nameof(LoginAsync_ShouldThrowIfUserNotFound));
         var userService = new UserService(null, null, dbContext, null, null, null);
         
         //Act & Assert
@@ -153,8 +153,8 @@ public class UserServiceTests
             LastName = LastName,
             UserName = UserName
         };
-        var userManager = GetUserManager<User>();
-        var dbContext = GetDbContext(nameof(LoginAsync_ShouldThrowIfPasswordIsInvalid));
+        var userManager = Utils.GetUserManager<User>();
+        var dbContext = Utils.GetDbContext(nameof(LoginAsync_ShouldThrowIfPasswordIsInvalid));
 
         await dbContext.Users.AddAsync(user);
         await dbContext.SaveChangesAsync();
@@ -213,35 +213,5 @@ public class UserServiceTests
         
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(async () => await userService.UpdateAsync(UserId, updateDto));
-    }
-
-    private ApplicationDbContext GetDbContext(string name)
-    {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(name)
-            .ConfigureWarnings(b => b.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-            .Options;
-        
-        return new ApplicationDbContext(options);
-    }
-    
-    public static UserManager<TUser> GetUserManager<TUser>()
-        where TUser : class
-    {
-        var store = Substitute.For<IUserStore<TUser>>();
-        var passwordHasher = Substitute.For<IPasswordHasher<TUser>>();
-        IList<IUserValidator<TUser>> userValidators = new List<IUserValidator<TUser>>
-        {
-            new UserValidator<TUser>()
-        };
-        IList<IPasswordValidator<TUser>> passwordValidators = new List<IPasswordValidator<TUser>>
-        {
-            new PasswordValidator<TUser>()
-        };
-        userValidators.Add(new UserValidator<TUser>());
-        passwordValidators.Add(new PasswordValidator<TUser>());
-        var userManager = Substitute.For<UserManager<TUser>>(store, 
-            null, passwordHasher, userValidators, passwordValidators, null, null, null, null);
-        return userManager;
     }
 }

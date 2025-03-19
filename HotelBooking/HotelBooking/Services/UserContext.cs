@@ -2,7 +2,12 @@
 
 namespace HotelBooking.Services;
 
-public class UserContext
+public interface IUserContext
+{
+    string? UserId { get; }
+}
+
+public class UserContext : IUserContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 

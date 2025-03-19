@@ -17,6 +17,8 @@ public static class ServiceExtensions
         services.AddScoped<IReservationRoomTypeService, ReservationRoomTypeService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+        services.AddScoped<IUserContext, UserContext>();
+
 //Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAdminRepository, AdminRepository>();

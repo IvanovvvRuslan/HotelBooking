@@ -24,10 +24,10 @@ public class ClientService : GenericService<Client, ClientForAdminDto>, IClientS
 {
     private readonly IClientRepository _clientRepository;
     private readonly UserManager<User> _userManager;
-    private readonly UserContext _userContext;
+    private readonly IUserContext _userContext;
     private readonly IUserService _userService;
     
-    public ClientService(IClientRepository clientRepository, UserManager<User> userManager, UserContext userContext,
+    public ClientService(IClientRepository clientRepository, UserManager<User> userManager, IUserContext userContext,
         IUserService userService) : base(clientRepository)
     {
         _clientRepository = clientRepository;
@@ -47,7 +47,7 @@ public class ClientService : GenericService<Client, ClientForAdminDto>, IClientS
         
         var clientDto = client.Adapt<ClientForUserDto>();
         
-        var clientUser = await _userManager.FindByIdAsync(userId.ToString());
+        var clientUser = await _userManager.FindByIdAsync(userId.ToString());   /////////////////////////////
         
         if (clientUser == null)
             throw new NotFoundException("User not found");
