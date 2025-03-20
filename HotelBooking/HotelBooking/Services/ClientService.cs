@@ -47,7 +47,7 @@ public class ClientService : GenericService<Client, ClientForAdminDto>, IClientS
         
         var clientDto = client.Adapt<ClientForUserDto>();
         
-        var clientUser = await _userManager.FindByIdAsync(userId.ToString());   /////////////////////////////
+        var clientUser = await _userManager.FindByIdAsync(userId.ToString());
         
         if (clientUser == null)
             throw new NotFoundException("User not found");
@@ -89,6 +89,9 @@ public class ClientService : GenericService<Client, ClientForAdminDto>, IClientS
         var userId = int.Parse(_userContext.UserId);
 
         var oldClient = await _clientRepository.GetByUserIdTrackedAsync(userId);
+        
+        if (oldClient == null)
+            throw new NotFoundException("Client not found");
         
         oldClient.Gender = clientForUserDto.Gender;
         oldClient.Country = clientForUserDto.Country;
