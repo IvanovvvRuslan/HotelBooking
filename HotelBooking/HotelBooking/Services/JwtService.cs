@@ -29,7 +29,7 @@ public class JwtService : IJwtService
     {
         var user = _userManager.FindByIdAsync(userId.ToString()).Result;
         var roles = _userManager.GetRolesAsync(user).Result;
-
+        
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
