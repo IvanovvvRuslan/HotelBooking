@@ -22,7 +22,7 @@ public class ReservationRoomTypeService : IReservationRoomTypeService
     
     public async Task AddAsync(int reservationId, List<ReservationRoomTypeDto> roomTypes)
     {
-        if (roomTypes == null && !roomTypes.Any())
+        if (roomTypes == null || !roomTypes.Any())
             throw new NotFoundException("Room types are empty or not found");
         
         var reservationRoomTypes = roomTypes.Select(roomType => new ReservationRoomType

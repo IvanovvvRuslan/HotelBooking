@@ -57,7 +57,7 @@ public class RoomTypeService : GenericService<RoomType, RoomTypeDto>, IRoomTypeS
     {
         var price = await _roomTypeRepository.GetRoomPriceAsync(id);
 
-        if (price == null && price == 0)
+        if (price == 0)
             throw new NotFoundException("Price not found");
         
         return price;
@@ -67,7 +67,7 @@ public class RoomTypeService : GenericService<RoomType, RoomTypeDto>, IRoomTypeS
     {
         var occupancy = await _roomTypeRepository.GetMaxOccupancyAsync(id);
 
-        if (occupancy == null && occupancy == 0)
+        if (occupancy == 0)
             throw new NotFoundException("Max occupancy not found");
         
         return occupancy;

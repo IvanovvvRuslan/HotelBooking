@@ -9,8 +9,12 @@ namespace HotelBooking.Tests;
 
 public class RoomServiceTests
 {
+    private const int RoomTypeId = 1;
+    private const string RoomNumber = "101";
+    private const string Description = "RoomService Description";
+    
     [Fact]
-    public async Task CreateAsync_ShouldRunSuccessfully()
+    public async Task CreateAsync_ShouldCreateRoomSuccessfully()
     {
         //Arrange
         var roomRepository = Substitute.For<IRoomRepository>();
@@ -18,12 +22,12 @@ public class RoomServiceTests
         
         var roomDto = new RoomDto
         {
-            RoomTypeId = 1,
-            RoomNumber = "101",
-            Description = "Test Description",
+            RoomTypeId = RoomTypeId,
+            RoomNumber = RoomNumber,
+            Description = Description,
         };
         //Act
-       roomService.CreateAsync(roomDto);
+       await roomService.CreateAsync(roomDto);
        
        //Assert
        await roomRepository.Received(1).CreateAsync(Arg.Is<Room>(r =>
@@ -39,9 +43,9 @@ public class RoomServiceTests
         var roomRepository = Substitute.For<IRoomRepository>();
         var existingRoom = new Room
         {
-            RoomTypeId = 2,
-            RoomNumber = "101",
-            Description = "Old Description",
+            RoomTypeId = RoomTypeId,
+            RoomNumber = RoomNumber,
+            Description = Description,
         };
         roomRepository.GetByIdTrackedAsync(1).Returns(existingRoom);
         
@@ -49,8 +53,8 @@ public class RoomServiceTests
 
         var updateDto = new RoomDto
         {
-            RoomTypeId = 1,
-            RoomNumber = "222",
+            RoomTypeId = 2,
+            RoomNumber = "202",
             Description = "New Description",
         };
         
