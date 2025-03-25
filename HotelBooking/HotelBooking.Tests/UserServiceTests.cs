@@ -14,13 +14,13 @@ namespace HotelBooking.Tests;
 
 public class UserServiceTests
 {
-    private const string AccessToken = "access_token";
-    private const int UserId = 1;
-    private const string Email = "email@email.com";
-    private const string Password = "Password";
-    private const string FirstName = "Name";
-    private const string LastName = "LastName";
-    private string UserName = string.Concat(FirstName, LastName);
+    private static readonly string AccessToken = "access_token";
+    private static readonly int UserId = 1;
+    private static readonly string Email = "email@email.com";
+    private static readonly string Password = "Password";
+    private static readonly string FirstName = "Name";
+    private static readonly string LastName = "LastName";
+    private static readonly string UserName = string.Concat(FirstName, LastName);
     
     [Fact]
     public async Task CreateAsync_ShouldRunSuccessfully()

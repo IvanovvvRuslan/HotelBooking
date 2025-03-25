@@ -31,12 +31,12 @@ public class ReservationService : GenericService<Reservation, ReservationForAdmi
     private readonly IReservationRoomTypeRepository _reservationRoomTypeRepository;
     private readonly IReservationRoomTypeService _reservationRoomTypeService;
     private readonly IRoomTypeService _roomTypeService;
-    private readonly UserContext _userContext;
+    private readonly IUserContext _userContext;
     private readonly ApplicationDbContext _context;
 
     public ReservationService(IReservationRepository reservationRepository, IClientRepository clientRepository, 
         IReservationRoomTypeRepository reservationRoomTypeRepository, IReservationRoomTypeService reservationRoomTypeService,
-        IRoomTypeService roomTypeService, UserContext userContext, ApplicationDbContext context) : base (reservationRepository)
+        IRoomTypeService roomTypeService, IUserContext userContext, ApplicationDbContext context) : base (reservationRepository)
     {
         _reservationRepository = reservationRepository;
         _clientRepository = clientRepository;

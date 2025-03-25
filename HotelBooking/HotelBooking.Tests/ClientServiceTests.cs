@@ -12,11 +12,11 @@ namespace HotelBooking.Tests;
 
 public class ClientServiceTests
 {
-    private const int UserId = 1;
-    private const int ClientId = 1;
-    private const string PhoneNumber = "1234567890";
-    private const string Gender = "Male";
-    private const string Country = "Ukraine";
+    private static readonly int UserId = 1;
+    private static readonly int ClientId = 1;
+    private static readonly string PhoneNumber = "1234567890";
+    private static readonly string Gender = "Male";
+    private static readonly string Country = "Ukraine";
     
     [Fact]
     public async Task GetCurrentAsync_ShouldReturnSuccess()
@@ -105,15 +105,15 @@ public class ClientServiceTests
         var clientRepository = Substitute.For<IClientRepository>();
         var userManager = Utils.GetUserManager<User>();
         
-        var client = new Client {Gender = "oldGender", Country = "oldCountry"};
-        clientRepository.GetByIdTrackedAsync(ClientId).Returns(client);
+        var oldClient = new Client {Gender = "oldGender", Country = "oldCountry"};
+        clientRepository.GetByIdTrackedAsync(ClientId).Returns(oldClient);
         
         var user = new User {Id = UserId, PhoneNumber = "00000"};
         userManager.FindByIdAsync(user.Id.ToString()).Returns(user);
         
         var clientService = new ClientService(clientRepository, userManager, null, null);
 
-        var clientDto = new ClientForAdminDto
+        var newClient = new ClientForAdminDto
         {
             UserId = UserId,
             Gender = Gender, 
@@ -122,12 +122,13 @@ public class ClientServiceTests
         };
 
         //Act
-        await clientService.UpdateAsync(ClientId, clientDto);
+        await clientService.UpdateAsync(ClientId, newClient);
         
         //Assert
-        Assert.Equal(Gender, clientDto.Gender);
-        Assert.Equal(Country, clientDto.Country);
-        Assert.Equal(PhoneNumber, clientDto.PhoneNumber);
+        Assert.Equal(newClient.Gender, oldClient.Gender);
+        Assert.Equal(newClient.Country, oldClient.Country);
+        Assert.Equal(newClient.PhoneNumber, user.PhoneNumber);
+        await clientRepository.Received(1).SaveChangesAsync();
     }
 
     [Fact]
@@ -170,8 +171,8 @@ public class ClientServiceTests
         userContext.UserId.Returns(UserId.ToString());
         
         var clientRepository = Substitute.For<IClientRepository>();
-        var client = new Client {Gender = "oldGender", Country = "oldCountry"};
-        clientRepository.GetByUserIdTrackedAsync(UserId).Returns(client);
+        var oldClient = new Client {Gender = "oldGender", Country = "oldCountry"};
+        clientRepository.GetByUserIdTrackedAsync(UserId).Returns(oldClient);
         
         var userManager = Utils.GetUserManager<User>();
         var user = new User {Id = UserId, PhoneNumber = "00000"};
@@ -179,7 +180,7 @@ public class ClientServiceTests
         
         var clientService = new ClientService(clientRepository, userManager, userContext, null);
 
-        var clientDto = new ClientForUserDto
+        var newClient = new ClientForUserDto
         {
             Gender = Gender,
             Country = Country,
@@ -187,12 +188,13 @@ public class ClientServiceTests
         };
         
         //Act
-        await clientService.UpdateCurrentAsync(new ClaimsPrincipal(), clientDto);
+        await clientService.UpdateCurrentAsync(new ClaimsPrincipal(), newClient);
         
         //Assert
-        Assert.Equal(Gender, clientDto.Gender);
-        Assert.Equal(Country, clientDto.Country);
-        Assert.Equal(PhoneNumber, clientDto.PhoneNumber);
+        Assert.Equal(newClient.Gender, oldClient.Gender);
+        Assert.Equal(newClient.Country, oldClient.Country);
+        Assert.Equal(newClient.PhoneNumber, user.PhoneNumber);
+        await clientRepository.Received(1).SaveChangesAsync();
     }
     
     [Fact]
@@ -316,5 +318,4 @@ public class ClientServiceTests
         //Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(async () => await clientService.DeleteWithUserAsync(ClientId));
     }
-
 }

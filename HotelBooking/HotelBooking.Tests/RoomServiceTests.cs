@@ -9,9 +9,9 @@ namespace HotelBooking.Tests;
 
 public class RoomServiceTests
 {
-    private const int RoomTypeId = 1;
-    private const string RoomNumber = "101";
-    private const string Description = "RoomService Description";
+    private static readonly int RoomTypeId = 1;
+    private static readonly string RoomNumber = "101";
+    private static readonly string Description = "RoomService Description";
     
     [Fact]
     public async Task CreateAsync_ShouldCreateRoomSuccessfully()

@@ -37,6 +37,51 @@ public class ReservationRoomTypeServiceTests
     }
 
     [Fact]
+    public async Task UpdateAsync_ShouldUpdateSuccessfully()
+    {
+        var reservationId = 1;
+        var repository = Substitute.For<IReservationRoomTypeRepository>();
+        
+        var oldRoomTypes = new List<ReservationRoomType>
+        {
+            new ReservationRoomType { ReservationId = 1, RoomTypeId = 1, ReservedRoomCount = 1 },
+            new ReservationRoomType { ReservationId = 2, RoomTypeId = 2, ReservedRoomCount = 2 }
+        };
+
+        var newRoomTypes = new List<ReservationRoomTypeDto>
+        {
+            new ReservationRoomTypeDto 
+            { 
+                RoomTypeId = 11, 
+                ReservedRoomCount = 11,
+            },
+            new ReservationRoomTypeDto 
+            { 
+                RoomTypeId = 12, 
+                ReservedRoomCount = 22 
+            }
+        };
+        
+        repository.GetByReservationIdAsync(reservationId).Returns(oldRoomTypes);
+        
+        var service = new ReservationRoomTypeService(repository);
+        
+        //Act
+        await service.UpdateAsync(reservationId, newRoomTypes);
+        
+        //Assert
+        repository.Received(1).GetByReservationIdAsync(reservationId);
+        repository.Received(1).RemoveRange(oldRoomTypes);
+        await service.Received(1).AddAsync(reservationId, newRoomTypes);
+        
+        Assert.Equal(oldRoomTypes[0].RoomTypeId, newRoomTypes[0].RoomTypeId);
+        Assert.Equal(oldRoomTypes[1].RoomTypeId, newRoomTypes[1].RoomTypeId);
+        Assert.Equal(oldRoomTypes[0].ReservedRoomCount, newRoomTypes[0].ReservedRoomCount);
+        Assert.Equal(oldRoomTypes[1].ReservedRoomCount, newRoomTypes[1].ReservedRoomCount);
+    }
+    
+
+    [Fact]
     public async Task UpdateAsync_ShouldThrowIfRoomTypeNotFound()
     {
         //Arrange

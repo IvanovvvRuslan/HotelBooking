@@ -9,10 +9,10 @@ namespace HotelBooking.Tests;
 
 public class RoomTypeServiceTests
 {
-    private const string Name = "RoomTypeName";
-    private const decimal Price = 10.0m;
-    private const byte MaxOccupancy = 5;
-    private const string Description = "RoomDescription";
+    private static readonly string Name = "RoomTypeName";
+    private static readonly decimal Price = 10.0m;
+    private static readonly byte MaxOccupancy = 5;
+    private static readonly string Description = "RoomDescription";
 
     [Fact]
     public async Task CreateAsync_ShouldCreateRoomType()
@@ -47,7 +47,7 @@ public class RoomTypeServiceTests
         //Arrange
         var repository = Substitute.For<IRoomTypeRepository>();
 
-        var roomType = new RoomType
+        var oldRoomType = new RoomType
         {
             Name = Name,
             Price = Price,
@@ -55,7 +55,7 @@ public class RoomTypeServiceTests
             Description = Description
         };
 
-        repository.GetByIdTrackedAsync(1).Returns(roomType);
+        repository.GetByIdTrackedAsync(1).Returns(oldRoomType);
 
         var newRoomTypeDto = new RoomTypeDto
         {
@@ -71,10 +71,10 @@ public class RoomTypeServiceTests
         await service.UpdateAsync(1, newRoomTypeDto);
         
         //Assert
-        Assert.Equal(newRoomTypeDto.Name, roomType.Name);
-        Assert.Equal(newRoomTypeDto.Price, roomType.Price);
-        Assert.Equal(newRoomTypeDto.MaxOccupancy, roomType.MaxOccupancy);
-        Assert.Equal(newRoomTypeDto.Description, roomType.Description);
+        Assert.Equal(newRoomTypeDto.Name, oldRoomType.Name);
+        Assert.Equal(newRoomTypeDto.Price, oldRoomType.Price);
+        Assert.Equal(newRoomTypeDto.MaxOccupancy, oldRoomType.MaxOccupancy);
+        Assert.Equal(newRoomTypeDto.Description, oldRoomType.Description);
     }
 
     [Fact]

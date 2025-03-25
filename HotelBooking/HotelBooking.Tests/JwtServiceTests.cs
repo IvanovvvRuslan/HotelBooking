@@ -17,7 +17,9 @@ public class JwtServiceTests
     public void GenerateToken_ShouldReturnValidToken()
     {
         // Arrange
-        var userManager = Substitute.For<UserManager<User>>(Substitute.For<IUserStore<User>>(), null, null, null, null, null, null, null, null);
+        var userManager = Substitute.For<UserManager<User>>(Substitute.For<IUserStore<User>>(), 
+            null, null, null, null, null, null, null, null);
+        
         var jwtOptions = Microsoft.Extensions.Options.Options.Create(new JwtOptions
         {
             Issuer = "testIssuer",
