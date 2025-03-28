@@ -1,6 +1,5 @@
 ﻿using HotelBooking.DTO.RequestDto;
 using HotelBooking.DTO.ResponseDto;
-using HotelBooking.Models;
 using HotelBooking.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

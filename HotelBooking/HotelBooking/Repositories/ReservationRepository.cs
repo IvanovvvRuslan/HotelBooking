@@ -1,10 +1,6 @@
-﻿using System.Data;
-using HotelBooking.Data;
-using HotelBooking.DTO.RequestDto;
-using HotelBooking.Exceptions;
+﻿using HotelBooking.Data;
 using HotelBooking.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace HotelBooking.Repositories;
 

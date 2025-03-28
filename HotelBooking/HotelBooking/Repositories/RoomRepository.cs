@@ -1,6 +1,5 @@
 ﻿using HotelBooking.Data;
 using HotelBooking.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelBooking.Repositories;
 

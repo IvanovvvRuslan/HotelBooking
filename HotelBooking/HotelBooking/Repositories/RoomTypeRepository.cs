@@ -1,6 +1,4 @@
 ﻿using HotelBooking.Data;
-using HotelBooking.DTO.ResponseDto;
-using HotelBooking.Exceptions;
 using HotelBooking.Models;
 using Microsoft.EntityFrameworkCore;
 

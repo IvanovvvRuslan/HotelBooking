@@ -1,7 +1,6 @@
 ﻿using HotelBooking.DTO.ResponseDto;
 using HotelBooking.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.Controllers;
