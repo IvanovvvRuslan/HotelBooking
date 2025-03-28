@@ -28,4 +28,4 @@ jobs:
         run: dotnet build ./HotelBooking/HotelBooking.sln --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test ./HotelBooking/HotelBooking.sln --configuration Release --no-build
+        run: dotnet test ./HotelBooking/HotelBooking.sln --configuration Release --no-restore  --no-build
