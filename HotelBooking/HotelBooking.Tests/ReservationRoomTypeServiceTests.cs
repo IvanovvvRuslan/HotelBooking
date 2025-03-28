@@ -72,12 +72,11 @@ public class ReservationRoomTypeServiceTests
         //Assert
         repository.Received(1).GetByReservationIdAsync(reservationId);
         repository.Received(1).RemoveRange(oldRoomTypes);
-        await service.Received(1).AddAsync(reservationId, newRoomTypes);
-        
-        Assert.Equal(oldRoomTypes[0].RoomTypeId, newRoomTypes[0].RoomTypeId);
-        Assert.Equal(oldRoomTypes[1].RoomTypeId, newRoomTypes[1].RoomTypeId);
-        Assert.Equal(oldRoomTypes[0].ReservedRoomCount, newRoomTypes[0].ReservedRoomCount);
-        Assert.Equal(oldRoomTypes[1].ReservedRoomCount, newRoomTypes[1].ReservedRoomCount);
+        repository.Received(1).AddReservationRoomTypesAsync(Arg.Is<List<ReservationRoomType>>(list =>
+            list.Count == 2 &&
+            list.Any(r => r.ReservationId == reservationId && r.RoomTypeId == 11 && r.ReservedRoomCount == 11) &&
+            list.Any(r => r.ReservationId == reservationId && r.RoomTypeId == 12 && r.ReservedRoomCount == 22)));
+        repository.Received(1).SaveChangesAsync();
     }
     
 
