@@ -477,3 +477,6 @@ $RECYCLE.BIN/
 *.lnk
 
 **/.idea/**
+
+# Local secrets
+*.env
