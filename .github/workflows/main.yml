@@ -1,0 +1,60 @@
+﻿name: Build and Test
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ./HotelBooking/HotelBooking.sln
+
+      - name: Build project
+        run: dotnet build ./HotelBooking/HotelBooking.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test ./HotelBooking/HotelBooking.sln --configuration Release --no-restore  --no-build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+          
+      - name: Build and push container image to ACR
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./HotelBooking/HotelBooking/Dockerfile
+          push: true
+          tags: ${{ secrets.ACR_NAME }}.azurecr.io/hotelbooking:${{ github.sha }},${{ secrets.ACR_NAME }}.azurecr.io/hotelbooking:latest
+          
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'hotelbooking-app'
+          images: '${{ secrets.ACR_NAME }}.azurecr.io/hotelbooking:${{ github.sha }}'
